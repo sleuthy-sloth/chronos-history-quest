@@ -1,0 +1,7 @@
+{
+  "name": "Chronos - History Quest",
+  "description": "A gamified, narrative-driven history learning platform combining deep storytelling with interactive mechanics and AI tutoring.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
