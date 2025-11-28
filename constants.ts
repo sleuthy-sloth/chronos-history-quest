@@ -1,4 +1,5 @@
 
+
 import { ActivityType, CivType, Lesson, UserState, LeagueTier, LeagueMember, Achievement, Avatar, MascotIntel } from './types';
 
 export const INITIAL_USER_STATE: UserState = {
@@ -335,7 +336,8 @@ export const LESSON_DATA: Lesson[] = [
         items: ['Twins abandoned', 'Saved by She-Wolf', 'Quarrel over Hills', 'Romulus kills Remus'],
         correctOrder: ['Twins abandoned', 'Saved by She-Wolf', 'Quarrel over Hills', 'Romulus kills Remus'],
         backgroundInfo: "Romulus stood on the Palatine, Remus on the Aventine. The birds favored Romulus, but the sword decided the victor.",
-        mascotGuidance: "Put these events in order. And do not make a mistake, or you might end up like Remus."
+        mascotGuidance: "Put these events in order. And do not make a mistake, or you might end up like Remus.",
+        scholarNotes: "This myth might be an allegory for the unification of the Latin tribes (Romulus) and the Sabine tribes (represented by the she-wolf/Mars connection)."
       },
       {
         id: 'r1-3',
@@ -344,7 +346,8 @@ export const LESSON_DATA: Lesson[] = [
         narrative: "Romulus needed men for his new city on the Palatine. He didn't invite kings; he opened the gates to criminals, exiles, and runaway slaves. To secure a future generation, they famously abducted women from the neighboring Sabine tribe.",
         customImage: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Poussin_-_L%27Enl%C3%A8vement_des_Sabines%2C_INV_7290.jpg/1280px-Poussin_-_L%27Enl%C3%A8vement_des_Sabines%2C_INV_7290.jpg',
         imageCredit: 'The Abduction of the Sabine Women, Poussin',
-        mascotGuidance: "We were not born noble. We made ourselves noble through conquest. Rome welcomes all who can fight."
+        mascotGuidance: "We were not born noble. We made ourselves noble through conquest. Rome welcomes all who can fight.",
+        scholarNotes: "This event is known as the 'Rape of the Sabine Women', though the Latin word 'raptio' translates more accurately to 'mass abduction' or 'kidnapping' rather than the modern sexual definition."
       },
       {
         id: 'r1-4',
@@ -353,7 +356,8 @@ export const LESSON_DATA: Lesson[] = [
         options: ["Aventine", "Palatine", "Capitoline", "Esquiline"],
         correctAnswer: "Palatine",
         backgroundInfo: "The Palatine Hill became the home of emperors. It is where we get the word 'Palace'.",
-        mascotGuidance: "My own house stands on this hill. It is the heart of the Empire. Choose wisely."
+        mascotGuidance: "My own house stands on this hill. It is the heart of the Empire. Choose wisely.",
+        scholarNotes: "The Palatine was strategic. It overlooked the only fordable crossing of the Tiber River (the Tiber Island), controlling the trade route between Etruria and Campania."
       }
     ]
   },
@@ -374,7 +378,8 @@ export const LESSON_DATA: Lesson[] = [
         // Updated: Explicitly mentioned Numa as Priest and Tarquin as Tyrant
         narrative: "Rome had 7 kings. Romulus was the Founder. He was followed by Numa, the Priest King, who created the calendar and the Vestal Virgins. But the line ended with Tarquin the Proud, a violent tyrant who terrorized the people and ignored the Senate.",
         customImage: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Numa_Pompilius_and_the_Nymph_Egeria.jpg/800px-Numa_Pompilius_and_the_Nymph_Egeria.jpg',
-        mascotGuidance: "Kings... a detestable title. Though I hold the power of a King, I would never use the word."
+        mascotGuidance: "Kings... a detestable title. Though I hold the power of a King, I would never use the word.",
+        scholarNotes: "The last three kings of Rome were actually Etruscan. This period likely represents Rome being conquered and ruled by the more advanced Etruscan civilization to the north."
       },
       {
         id: 'r2-2',
@@ -385,7 +390,8 @@ export const LESSON_DATA: Lesson[] = [
           { term: 'Numa', definition: 'Priest' },
           { term: 'Tarquin', definition: 'Tyrant' }
         ],
-        backgroundInfo: "The name 'Rex' (King) became a dirty word in Rome, forever associated with Tarquin's tyranny."
+        backgroundInfo: "The name 'Rex' (King) became a dirty word in Rome, forever associated with Tarquin's tyranny.",
+        scholarNotes: "Numa Pompilius is credited with establishing the religious foundations of Rome, suggesting that Romans saw Law (Romulus) and Religion (Numa) as the twin pillars of the state."
       },
       {
         id: 'r2-3',
@@ -393,7 +399,8 @@ export const LESSON_DATA: Lesson[] = [
         question: "Who was the last King of Rome?",
         options: ["Numa Pompilius", "Tarquin the Proud", "Servius Tullius", "Ancus Marcius"],
         correctAnswer: "Tarquin the Proud",
-        backgroundInfo: "Tarquinius Superbus was expelled in 509 BC, marking the end of the Monarchy."
+        backgroundInfo: "Tarquinius Superbus was expelled in 509 BC, marking the end of the Monarchy.",
+        scholarNotes: "Servius Tullius (the 6th king) was likely the most important reformer, creating the Census and class system that defined the Roman army for centuries."
       }
     ]
   },
@@ -413,7 +420,8 @@ export const LESSON_DATA: Lesson[] = [
         question: 'The Oath of Brutus',
         narrative: "After Tarquin's son assaulted the noblewoman Lucretia, Lucius Junius Brutus led a revolt. He swore by her blood that Rome would never again be ruled by a king. They established a 'Res Publica' (Public Affair), but deep class divisions remained between the rich Patricians and poor Plebeians.",
         customImage: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Gavin_Hamilton_-_The_Oath_of_Brutus.jpg/1280px-Gavin_Hamilton_-_The_Oath_of_Brutus.jpg',
-        mascotGuidance: "A Republic is fragile. It requires virtue. When virtue fails, someone must... step in."
+        mascotGuidance: "A Republic is fragile. It requires virtue. When virtue fails, someone must... step in.",
+        scholarNotes: "Ironically, the Brutus who killed Julius Caesar claimed descent from this ancient Brutus, feeling it was his family destiny to destroy tyrants."
       },
       {
         id: 'r3-2',
@@ -426,7 +434,8 @@ export const LESSON_DATA: Lesson[] = [
           { text: 'Crush them with the Legions', isCorrect: false, feedback: 'Disaster! The legions ARE the Plebeians. You have no army.' },
           { text: 'Appoint a Dictator', isCorrect: false, feedback: 'The people fear another Tarquin. They riot and burn the Senate.' },
           { text: 'Create the Tribune of the Plebs', isCorrect: true, feedback: 'Wise. You give the people a representative with Veto power. They return to the army.' }
-        ]
+        ],
+        scholarNotes: "This event, the 'Secessio Plebis' (Secession of the Plebs), happened at least 5 times. It was the first recorded general strike in history."
       },
       {
         id: 'r3-3',
@@ -439,7 +448,8 @@ export const LESSON_DATA: Lesson[] = [
             question: "Which mountain range runs down the spine of Italy?",
             options: ["The Alps", "The Apennines", "The Pyrenees", "The Carpathians"],
             correctAnswer: "The Apennines"
-        }
+        },
+        scholarNotes: "Rome's conquest of Italy wasn't just military; it was a franchise model. Conquered cities became 'Socii' (Allies), providing troops in exchange for protection and a share of the loot."
       }
     ]
   },
@@ -475,7 +485,8 @@ export const LESSON_DATA: Lesson[] = [
         // Updated: Added Anubis content to prepare for Cipher
         narrative: "Life in Egypt revolved around the Nile and the Afterlife. They believed the god Anubis (Inpu), depicted with a Jackal's head, watched over the mummification process and weighed the hearts of the dead against the feather of truth.",
         customImage: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Egypt_Giza_Pyramids_Sphinx_and_Man_on_Camel_at_Sunset.jpg/1280px-Egypt_Giza_Pyramids_Sphinx_and_Man_on_Camel_at_Sunset.jpg',
-        mascotGuidance: "I have met Anubis. His scale is exact. Ensure your heart is lighter than a feather."
+        mascotGuidance: "I have met Anubis. His scale is exact. Ensure your heart is lighter than a feather.",
+        scholarNotes: "The heart was the only organ left in the mummy. The brain was pulled out through the nose with a hook because Egyptians thought it was useless stuffing."
       },
       {
         id: 'e1-3',
@@ -497,7 +508,8 @@ export const LESSON_DATA: Lesson[] = [
             question: "Into which sea does the Nile River flow?",
             options: ["Red Sea", "Mediterranean Sea", "Dead Sea", "Black Sea"],
             correctAnswer: "Mediterranean Sea"
-        }
+        },
+        scholarNotes: "Because the Nile flows North, 'Upper Egypt' is actually in the South (upriver), and 'Lower Egypt' is in the North (downriver)."
       }
     ]
   },
@@ -519,7 +531,8 @@ export const LESSON_DATA: Lesson[] = [
         narrative: "King Narmer unified the two lands of Egypt. To show his total power, he combined the White Crown of the South and the Red Crown of the North into a single headdress: the Double Crown, or 'Pschent'.",
         customImage: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Narmer_Palette.jpg/800px-Narmer_Palette.jpg',
         imageCredit: 'The Narmer Palette, Cairo Museum',
-        mascotGuidance: "One land, one King. I wear the Double Crown to show that I rule both the reed and the bee."
+        mascotGuidance: "One land, one King. I wear the Double Crown to show that I rule both the reed and the bee.",
+        scholarNotes: "Historians still debate if Narmer and Menes were the same person. The Narmer Palette is one of the earliest historical documents in the world."
       },
       {
         id: 'e2-2',
@@ -527,7 +540,8 @@ export const LESSON_DATA: Lesson[] = [
         question: "What symbol represents the unified Egypt?",
         options: ["The Double Crown (Pschent)", "The Ankh", "The Crook and Flail", "The Sphinx"],
         correctAnswer: "The Double Crown (Pschent)",
-        backgroundInfo: "It symbolized dominion over both the Nile Valley and the Delta."
+        backgroundInfo: "It symbolized dominion over both the Nile Valley and the Delta.",
+        scholarNotes: "The cobra (Uraeus) represented the goddess Wadjet of Lower Egypt, and the vulture represented Nekhbet of Upper Egypt. Pharaohs wore both on their brows."
       },
       {
         id: 'e2-3',
@@ -555,7 +569,8 @@ export const LESSON_DATA: Lesson[] = [
         // Updated: Mentioned purpose of pyramids
         narrative: "Imhotep designed the Step Pyramid for Pharaoh Djoser by stacking mastabas (bench tombs). These weren't just monuments; they were 'Resurrection Machines'. Their shape was a stairway for the King's soul to ascend to the stars and join the sun god Ra.",
         customImage: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Saqqara_pyramid_ver_2.jpg/1024px-Saqqara_pyramid_ver_2.jpg',
-        imageCredit: 'Pyramid of Djoser, Saqqara'
+        imageCredit: 'Pyramid of Djoser, Saqqara',
+        scholarNotes: "Contrary to popular belief and Hollywood movies, the pyramids were NOT built by slaves. They were built by paid seasonal laborers (farmers) during the Nile floods, who were fed meat and beer."
       },
       {
         id: 'e3-2',
@@ -573,7 +588,8 @@ export const LESSON_DATA: Lesson[] = [
         question: "What were the Pyramids built for?",
         options: ["Grain Storage", "Tombs for Kings", "Temples for Ra", "Palaces"],
         correctAnswer: "Tombs for Kings",
-        backgroundInfo: "They ensured the Pharaoh's Ka (soul) lived forever."
+        backgroundInfo: "They ensured the Pharaoh's Ka (soul) lived forever.",
+        scholarNotes: "The idea that they were grain silos comes from the Bible (Joseph). Archaeological evidence clearly shows sarcophagi and funerary texts inside."
       }
     ]
   },
@@ -597,7 +613,8 @@ export const LESSON_DATA: Lesson[] = [
         narrative: "To save the crumbling empire, Diocletian split it into four parts. The Western half was rural and poor. The Eastern half (Greece, Egypt, Turkey) was urban, rich, and spoke Greek. This division would determine the future of Europe.",
         customImage: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Venice_-_The_Tetrarchs_03.jpg/800px-Venice_-_The_Tetrarchs_03.jpg',
         imageCredit: 'The Tetrarchs, St Mark\'s Basilica',
-        mascotGuidance: "Rome had grown too large for one man. But dividing power... that often leads to blood."
+        mascotGuidance: "Rome had grown too large for one man. But dividing power... that often leads to blood.",
+        scholarNotes: "The famous statue of the Four Tetrarchs (shown here) is now in Venice. It was looted from Constantinople by Crusaders in 1204."
       },
       {
         id: 'b1-2',
@@ -616,7 +633,8 @@ export const LESSON_DATA: Lesson[] = [
         options: ["The East", "The West"],
         correctAnswer: "The East",
         backgroundInfo: "The East survived for 1,000 years after the West fell.",
-        mascotGuidance: "The West had only forests and barbarians. We in the East had the silk, the grain, and the gold."
+        mascotGuidance: "The West had only forests and barbarians. We in the East had the silk, the grain, and the gold.",
+        scholarNotes: "The East had the population centers (Alexandria, Antioch) and the trade routes (Silk Road). The West had a longer border to defend and fewer taxes to pay for it."
       }
     ]
   },
@@ -637,7 +655,8 @@ export const LESSON_DATA: Lesson[] = [
         // Updated: Explicitly mentioned Nova Roma name
         narrative: "Emperor Constantine moved the capital to the Greek city of Byzantium on the Bosporus Strait. He officially named it 'Nova Roma' (New Rome), but history would remember it as the City of Constantine: Constantinople.",
         customImage: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Constantinople_3d_reconstruction_by_Byzantium_1200.jpg/1280px-Constantinople_3d_reconstruction_by_Byzantium_1200.jpg',
-        imageCredit: 'Reconstruction of Constantinople'
+        imageCredit: 'Reconstruction of Constantinople',
+        scholarNotes: "Constantinople was impregnable because it was a peninsula surrounded by water on three sides, requiring only one set of land walls to defend."
       },
       {
         id: 'b2-2',
@@ -650,7 +669,8 @@ export const LESSON_DATA: Lesson[] = [
             question: "Constantinople sits on which strategic strait?",
             options: ["The Dardanelles", "The Bosporus", "Gibraltar", "The Corinth Canal"],
             correctAnswer: "The Bosporus"
-        }
+        },
+        scholarNotes: "The Bosporus is the only outlet from the Black Sea to the Mediterranean. Controlling it meant controlling the grain supply from Ukraine to the rest of the world."
       },
       {
         id: 'b2-3',
@@ -678,7 +698,8 @@ export const LESSON_DATA: Lesson[] = [
         question: 'The Shield of God',
         // Updated: Mentioned Ottoman Cannons
         narrative: "The Theodosian Walls were a triple-layered defense system that protected the city for a millennium. Attila the Hun couldn't break them. The Arabs couldn't climb them. It wasn't until 1453, with the invention of massive Ottoman cannons, that the walls finally fell.",
-        customImage: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Theodosian_Walls.jpg/1280px-Theodosian_Walls.jpg'
+        customImage: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Theodosian_Walls.jpg/1280px-Theodosian_Walls.jpg',
+        scholarNotes: "The walls included a 'killing zone' (Peribolos) between the outer and inner walls. Attackers who climbed the first wall found themselves trapped in a trench, targeted by archers on the higher inner wall."
       },
       {
         id: 'b3-2',
@@ -693,7 +714,8 @@ export const LESSON_DATA: Lesson[] = [
         question: "What finally breached the walls in 1453?",
         options: ["Giant Cannons", "Wooden Horse", "Earthquake", "Treachery"],
         correctAnswer: "Giant Cannons",
-        backgroundInfo: "The 'Basilic' cannon was 27 feet long and fired a 1,200 lb stone ball."
+        backgroundInfo: "The 'Basilic' cannon was 27 feet long and fired a 1,200 lb stone ball.",
+        scholarNotes: "The engineer who built the cannon, Orban, originally offered his services to the Byzantines. The Emperor couldn't afford his salary, so he went to the Ottoman Sultan instead."
       }
     ]
   },
@@ -716,7 +738,8 @@ export const LESSON_DATA: Lesson[] = [
         narrative: "The Persians were originally a nomadic vassal tribe living in the shadow of the Medes. They were expert horsemen who relied on the composite bow. Under Cyrus, they overthrew their Median overlords and stormed out of the Iranian Plateau.",
         customImage: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Achaemenid_Soldiers.jpg/1280px-Achaemenid_Soldiers.jpg',
         imageCredit: 'Achaemenid Frieze, Persepolis',
-        mascotGuidance: "My people were not city builders initially. We were riders. The bow is the extension of the Persian soul."
+        mascotGuidance: "My people were not city builders initially. We were riders. The bow is the extension of the Persian soul.",
+        scholarNotes: "Persian education for boys consisted of three things: to ride a horse, to draw a bow, and to tell the truth."
       },
       {
         id: 'p1-2',
@@ -736,7 +759,8 @@ export const LESSON_DATA: Lesson[] = [
         question: "What was the main weapon of Persian warfare?",
         options: ["The Bow", "The Phalanx", "The Chariot", "The Elephant"],
         correctAnswer: "The Bow",
-        backgroundInfo: "They would darken the sky with arrows to break enemy formations before charging."
+        backgroundInfo: "They would darken the sky with arrows to break enemy formations before charging.",
+        scholarNotes: "The Persians used 'Sparabara' (shield bearers) to create a wall, behind which archers could fire safely. This worked perfectly until they met the heavily armored Greek hoplites."
       }
     ]
   },
@@ -758,7 +782,8 @@ export const LESSON_DATA: Lesson[] = [
         narrative: "Unlike the Assyrians, who ruled by terror and flayed their enemies, Cyrus ruled by tolerance. When he conquered Babylon, he paid respect to their chief god, Marduk. He allowed the exiled Jews to return home. He conquered hearts, not just land.",
         customImage: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Cyrus_Cylinder_front.jpg/1024px-Cyrus_Cylinder_front.jpg',
         imageCredit: 'The Cyrus Cylinder, British Museum',
-        mascotGuidance: "Why rule by fear when you can rule by love? A happy subject pays taxes. A dead one pays nothing."
+        mascotGuidance: "Why rule by fear when you can rule by love? A happy subject pays taxes. A dead one pays nothing.",
+        scholarNotes: "The Cyrus Cylinder is often called the 'First Charter of Human Rights'. It declares that all people have the right to choose their own religion and speak their own language."
       },
       {
         id: 'p2-2',
@@ -798,7 +823,8 @@ export const LESSON_DATA: Lesson[] = [
         type: ActivityType.READING,
         question: 'The King\'s Eyes',
         narrative: "To govern such a vast empire, Darius I divided it into 20 provinces ruled by governors called 'Satraps'. He connected them with the Royal Road. A message could travel 1,600 miles in just 7 days using a relay of fresh horses.",
-        customImage: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Darius_I_the_Great_receiving_homage.jpg/1280px-Darius_I_the_Great_receiving_homage.jpg'
+        customImage: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Darius_I_the_Great_receiving_homage.jpg/1280px-Darius_I_the_Great_receiving_homage.jpg',
+        scholarNotes: "The motto of the US Postal Service ('Neither snow nor rain nor heat...') actually comes from Herodotus describing these Persian couriers."
       },
       {
         id: 'p3-2',
@@ -813,7 +839,8 @@ export const LESSON_DATA: Lesson[] = [
         question: "What is a Satrap?",
         options: ["A Governor", "A Priest", "A General", "A Slave"],
         correctAnswer: "A Governor",
-        backgroundInfo: "Satraps collected taxes and raised armies, but were watched by spies known as the 'King's Ears'."
+        backgroundInfo: "Satraps collected taxes and raised armies, but were watched by spies known as the 'King's Ears'.",
+        scholarNotes: "To prevent rebellion, Darius separated powers: the Satrap ran the government, but a separate general commanded the army, and both reported directly to the King."
       }
     ]
   }

@@ -5,8 +5,11 @@ import { UserState, CivType, LeagueMember, Avatar } from '../types';
 import { INITIAL_USER_STATE, LEAGUE_BOT_POOL, AVATARS } from '../constants';
 
 // --- Configuration ---
+// Access API Key securely via the build-time injection defined in vite.config.ts
+const apiKey = process.env.API_KEY;
+
 const firebaseConfig = {
-  apiKey: "AIzaSyBE9eDkVD0eBiplBPNfzuSL_m1KlmtI_L8",
+  apiKey: apiKey,
   authDomain: "chronos-391c8.firebaseapp.com",
   projectId: "chronos-391c8",
   storageBucket: "chronos-391c8.firebasestorage.app",
