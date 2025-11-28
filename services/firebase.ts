@@ -5,8 +5,8 @@ import { UserState, CivType, LeagueMember, Avatar } from '../types';
 import { INITIAL_USER_STATE, LEAGUE_BOT_POOL, AVATARS } from '../constants';
 
 // --- Configuration ---
-// Access API Key securely via the build-time injection defined in vite.config.ts
-const apiKey = process.env.API_KEY;
+// Access API Key using Vite's standard import.meta.env
+const apiKey = import.meta.env.VITE_API_KEY;
 
 const firebaseConfig = {
   apiKey: apiKey,

@@ -1,9 +1,7 @@
 import { GoogleGenAI, LiveServerMessage, Modality, Type } from "@google/genai";
 
-// Secure API Key access.
-// In the build process (vite.config.ts), process.env.API_KEY is replaced 
-// with the string value of the environment variable (VITE_API_KEY).
-const API_KEY = process.env.API_KEY;
+// Secure API Key access using Vite's import.meta.env
+const API_KEY = import.meta.env.VITE_API_KEY;
 const getAI = () => new GoogleGenAI({ apiKey: API_KEY });
 
 // AudioContext Singleton to avoid browser limits
