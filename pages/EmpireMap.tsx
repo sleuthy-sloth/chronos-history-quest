@@ -1,22 +1,25 @@
 
-
 import React, { useState } from 'react';
-import { UserState } from '../types';
-import { CIV_THEMES, LESSON_DATA } from '../constants';
+import { UserState, Lesson } from '../types';
+import { CIV_THEMES } from '../constants';
 
 interface Props {
   user: UserState;
+  lessons: Lesson[];
 }
 
-const EmpireMap: React.FC<Props> = ({ user }) => {
+const EmpireMap: React.FC<Props> = ({ user, lessons }) => {
   const [activeMarker, setActiveMarker] = useState<string | null>(null);
   const theme = CIV_THEMES[user.currentCiv];
   
-  // Filter lessons for current Civ
-  const civLessons = LESSON_DATA.filter(l => l.civ === user.currentCiv);
-  const completedCount = user.completedLessons.filter(id => id.startsWith(user.currentCiv.toLowerCase())).length;
+  // Calculate completion percentage based on ALL lessons for the civ
+  const completedCount = lessons.filter(l => l.completed).length;
   // Prevent division by zero
-  const progressPercent = civLessons.length > 0 ? Math.round((completedCount / civLessons.length) * 100) : 0;
+  const progressPercent = lessons.length > 0 ? Math.round((completedCount / lessons.length) * 100) : 0;
+
+  // Filter lessons that should be visible on the map (Unlocked or Completed)
+  // This achieves the "visible as they happen" effect
+  const visibleLessons = lessons.filter(l => !l.locked || l.completed);
 
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4 md:p-8 relative overflow-hidden">
@@ -42,72 +45,82 @@ const EmpireMap: React.FC<Props> = ({ user }) => {
         </div>
 
         {/* Map Container */}
-        <div className="relative w-full max-w-6xl aspect-[4/3] md:aspect-[16/9] bg-[#1a1614] rounded-xl overflow-hidden border-[12px] border-[#2e231e] shadow-[0_20px_50px_rgba(0,0,0,0.7),inset_0_0_100px_rgba(0,0,0,0.8)] group transition-all duration-500 hover:scale-[1.01]">
+        <div className="relative w-full max-w-5xl shadow-2xl rounded-xl overflow-hidden border-[8px] border-[#2e231e] bg-[#1a1614] group">
             
-            {/* The Map Image - Object Contain to ensure coordinates match perfectly */}
-            <div className="absolute inset-0 p-4 md:p-8 flex items-center justify-center bg-[#e6dccf]">
+            {/* 
+                Structure for Perfect Coordinates:
+                1. Container is relative.
+                2. Image is block, width-full, height-auto (it dictates the container height).
+                3. Markers wrapper is absolute inset-0, matching the image dimensions exactly.
+            */}
+            
+            <div className="relative">
                 <img 
                     src={theme.mapImage || theme.coverImage} 
                     alt="Empire Map" 
-                    className="w-full h-full object-contain filter sepia-[0.3] contrast-125 saturate-50 mix-blend-multiply opacity-90" 
+                    className="w-full h-auto block filter sepia-[0.3] contrast-125 saturate-50 mix-blend-multiply opacity-90" 
                     referrerPolicy="no-referrer"
                 />
                 
-                {/* Paper Texture Overlay */}
+                {/* Paper Texture Overlay (matches image size) */}
                 <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/aged-paper-texture.png')] opacity-60 pointer-events-none mix-blend-multiply" />
                 <div className="absolute inset-0 shadow-[inset_0_0_150px_rgba(56,40,26,0.5)] pointer-events-none" />
-            </div>
+                
+                {/* Grid Overlay */}
+                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/grid-me.png')] opacity-10 pointer-events-none mix-blend-overlay" />
 
-            {/* Grid Overlay */}
-            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/grid-me.png')] opacity-10 pointer-events-none mix-blend-overlay" />
+                {/* Lesson Markers Layer */}
+                <div className="absolute inset-0">
+                    {visibleLessons.map((lesson) => {
+                        const isCompleted = lesson.completed;
+                        const isActive = !lesson.locked && !lesson.completed;
+                        
+                        // Default coordinates 50,50 if missing
+                        const coords = lesson.mapCoordinates || { x: 50, y: 50 };
 
-            {/* Lesson Markers */}
-            {civLessons.map((lesson) => {
-                const isCompleted = user.completedLessons.includes(lesson.id);
-                // Default coordinates 50,50 if missing
-                const coords = lesson.mapCoordinates || { x: 50, y: 50 };
+                        return (
+                            <div 
+                                key={lesson.id}
+                                className="absolute transform -translate-x-1/2 -translate-y-1/2 z-10 group/marker"
+                                style={{ left: `${coords.x}%`, top: `${coords.y}%` }}
+                            >
+                                {/* Pin Head */}
+                                <button
+                                    onClick={() => setActiveMarker(lesson.id)}
+                                    className={`
+                                        relative w-4 h-4 md:w-6 md:h-6 rounded-full border-2 transition-all duration-300 shadow-lg
+                                        ${isCompleted 
+                                            ? 'bg-amber-600 border-white shadow-[0_0_15px_rgba(245,158,11,0.8)] scale-110 z-20' 
+                                            : 'bg-slate-200 border-slate-900 animate-pulse z-30 ring-4 ring-amber-500/30'}
+                                    `}
+                                >
+                                    {/* Ping Animation for Active/Target */}
+                                    {isActive && (
+                                        <div className="absolute inset-0 rounded-full animate-ping bg-amber-500 opacity-75"></div>
+                                    )}
+                                </button>
 
-                return (
-                    <div 
-                        key={lesson.id}
-                        className="absolute transform -translate-x-1/2 -translate-y-1/2 z-10 group/marker"
-                        style={{ left: `${coords.x}%`, top: `${coords.y}%` }}
-                    >
-                        {/* Pin Head */}
-                        <button
-                            onClick={() => setActiveMarker(lesson.id)}
-                            className={`
-                                relative w-4 h-4 md:w-6 md:h-6 rounded-full border-2 transition-all duration-300 shadow-lg
-                                ${isCompleted 
-                                    ? 'bg-amber-600 border-white shadow-[0_0_15px_rgba(245,158,11,0.8)] scale-110 z-20' 
-                                    : 'bg-slate-700 border-slate-500 opacity-80 hover:scale-110 hover:bg-slate-600 z-10'}
-                            `}
-                        >
-                            {/* Ping Animation for Active/Completed */}
-                            {activeMarker === lesson.id && (
-                                <div className="absolute inset-0 rounded-full animate-ping bg-white opacity-50"></div>
-                            )}
-                        </button>
-
-                        {/* Hover Label (Desktop) - Styled like a handwritten note */}
-                        <div className="hidden md:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max opacity-0 group-hover/marker:opacity-100 transition-opacity pointer-events-none z-30">
-                            <div className="bg-[#f3eacb] text-slate-900 text-xs px-3 py-1 rounded-sm shadow-lg font-serif italic border border-[#d4c5a0] transform rotate-1">
-                                {lesson.title}
+                                {/* Hover Label (Desktop) */}
+                                <div className="hidden md:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max opacity-0 group-hover/marker:opacity-100 transition-opacity pointer-events-none z-30">
+                                    <div className="bg-[#f3eacb] text-slate-900 text-xs px-3 py-1 rounded-sm shadow-lg font-serif italic border border-[#d4c5a0] transform rotate-1">
+                                        {lesson.title}
+                                    </div>
+                                    <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-[#d4c5a0] mx-auto"></div>
+                                </div>
                             </div>
-                            <div className="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-[#d4c5a0] mx-auto"></div>
-                        </div>
-                    </div>
-                );
-            })}
+                        );
+                    })}
+                </div>
+            </div>
         </div>
 
         {/* Marker Info Card (Popup) */}
         {activeMarker && (
             <div className="absolute bottom-24 md:bottom-12 left-1/2 -translate-x-1/2 w-[90%] md:w-auto z-30 animate-pop">
                 {(() => {
-                    const l = civLessons.find(l => l.id === activeMarker);
+                    const l = lessons.find(l => l.id === activeMarker);
                     if (!l) return null;
-                    const isCompleted = user.completedLessons.includes(l.id);
+                    const isCompleted = l.completed;
                     
                     return (
                         <div className="bg-[#1c1917]/95 backdrop-blur-md border border-amber-500/40 p-6 rounded-xl shadow-2xl flex flex-col md:flex-row gap-6 items-center text-center md:text-left max-w-2xl relative overflow-hidden">
@@ -115,15 +128,19 @@ const EmpireMap: React.FC<Props> = ({ user }) => {
                             <div className={`absolute top-0 left-0 w-1 h-full ${theme.primary}`}></div>
 
                             <div className={`w-14 h-14 rounded-full flex items-center justify-center text-2xl border-2 flex-shrink-0 ${isCompleted ? 'bg-amber-900/50 border-amber-500 text-amber-500' : 'bg-slate-800 border-slate-600 text-slate-500'}`}>
-                                {isCompleted ? '👑' : '🔒'}
+                                {isCompleted ? '👑' : '⚔️'}
                             </div>
                             <div className="flex-1">
                                 <h3 className="font-serif text-xl text-amber-100 font-bold mb-1 tracking-wide">{l.title}</h3>
                                 <p className="text-stone-400 text-sm leading-relaxed">{l.description}</p>
                             </div>
-                            {isCompleted && (
+                            {isCompleted ? (
                                 <div className="px-3 py-1 bg-green-900/40 text-green-400 text-[10px] font-bold uppercase tracking-widest rounded border border-green-500/30">
                                     Conquered
+                                </div>
+                            ) : (
+                                <div className="px-3 py-1 bg-amber-900/40 text-amber-400 text-[10px] font-bold uppercase tracking-widest rounded border border-amber-500/30">
+                                    Current Objective
                                 </div>
                             )}
                             

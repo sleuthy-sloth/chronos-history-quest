@@ -207,7 +207,8 @@ const App: React.FC = () => {
     switch (currentView) {
       case 'dashboard': return <Dashboard lessons={currentCivLessons} user={user} onStartLesson={startLesson} onSwitchCiv={() => setShowCivSwitcher(true)} />;
       case 'league': return <League user={user} />;
-      case 'map': return <EmpireMap user={user} />;
+      // Pass the enriched lessons to Map so it knows about locked/completed status
+      case 'map': return <EmpireMap user={user} lessons={currentCivLessons} />;
       case 'profile': return <Profile user={user} onUpdateUser={setUser} />;
       case 'settings': return <Settings user={user} onUpdateUser={setUser} />;
       default: return <Dashboard lessons={currentCivLessons} user={user} onStartLesson={startLesson} onSwitchCiv={() => setShowCivSwitcher(true)} />;
