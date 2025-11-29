@@ -1,4 +1,5 @@
 
+
 import React, { useState } from 'react';
 import { UserState } from '../types';
 import { CIV_THEMES, LESSON_DATA } from '../constants';
@@ -14,7 +15,8 @@ const EmpireMap: React.FC<Props> = ({ user }) => {
   // Filter lessons for current Civ
   const civLessons = LESSON_DATA.filter(l => l.civ === user.currentCiv);
   const completedCount = user.completedLessons.filter(id => id.startsWith(user.currentCiv.toLowerCase())).length;
-  const progressPercent = Math.round((completedCount / civLessons.length) * 100);
+  // Prevent division by zero
+  const progressPercent = civLessons.length > 0 ? Math.round((completedCount / civLessons.length) * 100) : 0;
 
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4 md:p-8 relative overflow-hidden">
@@ -77,18 +79,18 @@ const EmpireMap: React.FC<Props> = ({ user }) => {
                             className={`
                                 relative w-4 h-4 md:w-6 md:h-6 rounded-full border-2 transition-all duration-300 shadow-lg
                                 ${isCompleted 
-                                    ? 'bg-amber-600 border-white shadow-[0_0_15px_rgba(245,158,11,0.8)] scale-110' 
-                                    : 'bg-slate-700 border-slate-500 opacity-80 hover:scale-110 hover:bg-slate-600'}
+                                    ? 'bg-amber-600 border-white shadow-[0_0_15px_rgba(245,158,11,0.8)] scale-110 z-20' 
+                                    : 'bg-slate-700 border-slate-500 opacity-80 hover:scale-110 hover:bg-slate-600 z-10'}
                             `}
                         >
-                            {/* Pin Stick (Visual pseudo-element simulation via border/box-shadow not easily doable here, keeping simple) */}
+                            {/* Ping Animation for Active/Completed */}
                             {activeMarker === lesson.id && (
                                 <div className="absolute inset-0 rounded-full animate-ping bg-white opacity-50"></div>
                             )}
                         </button>
 
                         {/* Hover Label (Desktop) - Styled like a handwritten note */}
-                        <div className="hidden md:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max opacity-0 group-hover/marker:opacity-100 transition-opacity pointer-events-none">
+                        <div className="hidden md:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max opacity-0 group-hover/marker:opacity-100 transition-opacity pointer-events-none z-30">
                             <div className="bg-[#f3eacb] text-slate-900 text-xs px-3 py-1 rounded-sm shadow-lg font-serif italic border border-[#d4c5a0] transform rotate-1">
                                 {lesson.title}
                             </div>

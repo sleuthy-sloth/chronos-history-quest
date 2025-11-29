@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect } from 'react';
 import { LESSON_DATA } from './constants';
 import { UserState, CivType } from './types';
@@ -52,8 +53,37 @@ const App: React.FC = () => {
     }
   }, [user?.settings?.theme]);
 
-  const activeLesson = LESSON_DATA.find(l => l.id === activeLessonId);
-  const currentCivLessons = LESSON_DATA.filter(l => l.civ === user?.currentCiv);
+  // --- Dynamic Lesson State Logic ---
+  const enrichLessons = (lessons: typeof LESSON_DATA, currentUser: UserState) => {
+     return lessons.map((lesson, index) => {
+         // Check if this specific lesson ID is in the user's completed list
+         const isCompleted = currentUser.completedLessons.includes(lesson.id);
+         
+         // Logic for locking:
+         // 1. If it's the first lesson of the CIV unit, it's unlocked by default.
+         // 2. Otherwise, it unlocks only if the immediately preceding lesson is completed.
+         let isLocked = true;
+         if (index === 0) {
+             isLocked = false;
+         } else {
+             const prevLesson = lessons[index - 1];
+             if (currentUser.completedLessons.includes(prevLesson.id)) {
+                 isLocked = false;
+             }
+         }
+         
+         // If a lesson is completed, it must be unlocked (sanity check)
+         if (isCompleted) isLocked = false;
+         
+         return { ...lesson, completed: isCompleted, locked: isLocked };
+     });
+  };
+
+  const currentCivRawLessons = LESSON_DATA.filter(l => l.civ === user?.currentCiv);
+  const currentCivLessons = user ? enrichLessons(currentCivRawLessons, user) : [];
+  
+  const activeLesson = activeLessonId ? LESSON_DATA.find(l => l.id === activeLessonId) : null;
+  
   const isGuest = user && user.uid.startsWith('guest-');
 
   // --- Handlers ---
@@ -96,25 +126,44 @@ const App: React.FC = () => {
   };
 
   const completeLesson = async (earnedXp: number) => {
-    if (!user) return;
+    if (!user || !activeLessonId) return;
     
     const today = new Date().toDateString();
     const lastLogin = new Date(user.lastLoginDate).toDateString();
     let newStreak = user.streak;
     
+    // Simple streak logic: if logged in on a different day than last time, increment
+    // Real prod logic would check if it's exactly the *next* day.
     if (today !== lastLogin) {
         newStreak += 1; 
     }
 
+    // Prevent duplicate XP/Completion for same lesson
+    let newCompleted = [...user.completedLessons];
+    let xpToAdd = 0;
+    
+    if (!newCompleted.includes(activeLessonId)) {
+        newCompleted.push(activeLessonId);
+        xpToAdd = earnedXp;
+    } else {
+        // Reduced XP for replay
+        xpToAdd = 10; 
+    }
+
     const updates = {
-        xp: user.xp + earnedXp,
-        completedLessons: [...user.completedLessons, activeLessonId!],
+        xp: user.xp + xpToAdd,
+        completedLessons: newCompleted,
         streak: newStreak,
         lastLoginDate: new Date().toISOString()
     };
     
+    // Save to backend/local
     const updatedUser = await updateUserProgress(user, updates);
+    
+    // Update local state immediately
     setUser(updatedUser);
+    
+    // Close lesson
     setActiveLessonId(null);
   };
 
@@ -128,7 +177,7 @@ const App: React.FC = () => {
 
               <div className="max-w-4xl w-full flex flex-col md:flex-row items-center gap-12 z-10">
                   
-                  {/* Hero Logo - Replaced with transparent Hourglass SVG */}
+                  {/* Hero Logo */}
                   <div className="flex-1 flex justify-center animate-bounce-slow">
                       <div className="w-64 h-64 md:w-80 md:h-80 relative">
                         {/* Glow */}
@@ -152,18 +201,28 @@ const App: React.FC = () => {
                       </p>
                       
                       <div className="w-full max-w-sm space-y-4 pt-4">
+                          {/* PRIMARY: GET STARTED (SIGN UP) */}
                           <button 
-                            onClick={() => handleGuestEntry()}
+                            onClick={() => handleOpenAuth('signup')}
                             className="w-full bg-amber-500 hover:bg-amber-400 text-white border-b-4 border-amber-700 active:border-b-0 active:translate-y-1 py-4 rounded-2xl font-extrabold text-sm uppercase tracking-widest transition-all shadow-xl"
                           >
-                              Begin Your Journey
+                              Get Started
                           </button>
                           
+                          {/* SECONDARY: LOGIN */}
                           <button 
                             onClick={() => handleOpenAuth('login')}
                             className="w-full bg-white hover:bg-gray-50 text-slate-700 border-2 border-gray-200 border-b-4 hover:border-gray-300 active:border-b-0 active:translate-y-1 py-4 rounded-2xl font-extrabold text-sm uppercase tracking-widest transition-all"
                           >
                               I already have an account
+                          </button>
+
+                          {/* TERTIARY: GUEST */}
+                          <button 
+                            onClick={() => handleGuestEntry()}
+                            className="w-full text-slate-400 hover:text-slate-600 font-bold text-xs uppercase tracking-widest py-2 transition-colors"
+                          >
+                              Try as Guest
                           </button>
                       </div>
                   </div>

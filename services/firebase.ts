@@ -1,11 +1,12 @@
 
+
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
 import { UserState, CivType, LeagueMember, Avatar } from '../types';
 import { INITIAL_USER_STATE, LEAGUE_BOT_POOL, AVATARS } from '../constants';
 
-const apiKey = import.meta.env.VITE_API_KEY;
+const apiKey = process.env.API_KEY;
 
 const firebaseConfig = {
   apiKey: apiKey,
@@ -286,9 +287,9 @@ const generateSmartBots = (count: number): LeagueMember[] => {
   let dayOfWeek = new Date().getDay();
   if (dayOfWeek === 0) dayOfWeek = 7; 
   
-  // Realistic XP: ~100-200 XP per day for an active user.
+  // Realistic XP: ~80-100 XP per day for an active user.
   // We add some variance so not all bots are the same.
-  const baseDailyXp = 150; 
+  const baseDailyXp = 80; 
 
   for (let i = 0; i < count; i++) {
     const randomCiv = civs[Math.floor(Math.random() * civs.length)];

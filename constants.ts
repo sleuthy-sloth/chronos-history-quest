@@ -52,7 +52,7 @@ export const CIV_THEMES = {
     symbolUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Vexilloid_of_the_Roman_Empire.svg/512px-Vexilloid_of_the_Roman_Empire.svg.png',
     coverImage: 'https://images.unsplash.com/photo-1552832230-c0197dd311b5?q=80&w=1996&auto=format&fit=crop',
     mascot: 'Augustus',
-    mascotImage: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Statue-Augustus.jpg/640px-Statue-Augustus.jpg',
+    mascotImage: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Augustus_Bevagna_Glyptothek_Munich_317.jpg/640px-Augustus_Bevagna_Glyptothek_Munich_317.jpg',
     description: "The Rise of Rome",
     leagueTitle: "Legion League",
     mapImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Roman_Empire_Trajan_117AD.png/1280px-Roman_Empire_Trajan_117AD.png",
@@ -239,8 +239,8 @@ export const LESSON_DATA: Lesson[] = [
         question: 'The Fatal Argument',
         narrative: "When they came of age, the brothers sought to build a city. Romulus chose the **Palatine Hill**; Remus, the Aventine.\n\nThey consulted the gods through augury (birds). Remus saw 6 vultures first; Romulus saw 12 later. The dispute turned violent. Romulus killed his brother, shouting: *'So perish anyone who leaps over my walls!'*",
         mascotGuidance: "A city needs walls. And walls need blood.",
-        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/The_shepherd_Faustulus_bringing_Romulus_and_Remus_to_his_wife.jpg/1280px-The_shepherd_Faustulus_bringing_Romulus_and_Remus_to_his_wife.jpg",
-        imageCredit: "Faustulus bringing Romulus and Remus",
+        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Sabatelli_-_L%27uccisione_di_Remo.jpg/1024px-Sabatelli_-_L%27uccisione_di_Remo.jpg",
+        imageCredit: "The Killing of Remus, Sabatelli",
         scholarNotes: "Fratricide (brother-killing) is Rome's original sin, foreshadowing the bloody civil wars that would later destroy the Republic."
       },
       {

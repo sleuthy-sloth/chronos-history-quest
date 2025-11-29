@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 import { Lesson, UserState, CivType } from '../types';
 import { CIV_THEMES } from '../constants';
@@ -13,10 +14,12 @@ interface Props {
 const Dashboard: React.FC<Props> = ({ lessons, user, onStartLesson, onSwitchCiv }) => {
   const theme = CIV_THEMES[user.currentCiv];
 
-  // Group lessons into visual "Units" (Arbitrary grouping for visual structure)
+  // Group lessons into visual "Units"
+  // Note: 'lessons' prop is already enriched with completed/locked status by App.tsx
   const units = [
       { id: 1, title: theme.description, lessons: lessons.slice(0, 3), color: theme.primary },
-      { id: 2, title: "Expansion Era", lessons: lessons.slice(3, 6), color: theme.primary },
+      // Placeholder for future expansion
+      // { id: 2, title: "Expansion Era", lessons: lessons.slice(3, 6), color: theme.primary },
   ];
 
   return (
@@ -36,11 +39,9 @@ const Dashboard: React.FC<Props> = ({ lessons, user, onStartLesson, onSwitchCiv 
                 <span className={`font-extrabold uppercase text-xs ${theme.text}`}>Timeline</span>
             </button>
         </div>
-
-        {/* Floating Desktop Switcher (if needed, sidebar usually handles it) */}
         
         <div className="max-w-xl mx-auto pt-8 px-4">
-            {units.map((unit, unitIdx) => (
+            {units.map((unit) => (
                 <div key={unit.id} className="mb-12">
                     {/* Unit Header - Uses CIV SPECIFIC Color */}
                     <div className={`rounded-2xl p-4 mb-8 flex justify-between items-center text-white shadow-3d ${theme.primary}`}>
@@ -66,7 +67,7 @@ const Dashboard: React.FC<Props> = ({ lessons, user, onStartLesson, onSwitchCiv 
                                      {/* Floating "Start" Bubble for Active Lesson */}
                                      {isActive && (
                                          <div className={`absolute -top-12 left-1/2 -translate-x-1/2 bg-white dark:bg-slate-800 font-bold py-2 px-4 rounded-xl shadow-xl border-2 animate-bounce whitespace-nowrap z-20 ${theme.text} ${theme.border}`}>
-                                             START +10 XP
+                                             START +{lesson.xpReward} XP
                                              <div className={`absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white dark:bg-slate-800 border-b-2 border-r-2 transform rotate-45 ${theme.border}`}></div>
                                          </div>
                                      )}
