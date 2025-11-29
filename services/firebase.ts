@@ -1,5 +1,4 @@
 
-
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
@@ -19,33 +18,44 @@ const firebaseConfig = {
 
 const isFirebaseConfigured = !!firebaseConfig.apiKey;
 
-let auth: firebase.auth.Auth;
-let db: firebase.firestore.Firestore;
-
-if (isFirebaseConfigured) {
-  if (!firebase.apps.length) {
+// Initialize App conditionally
+if (isFirebaseConfigured && !firebase.apps.length) {
+  try {
     firebase.initializeApp(firebaseConfig);
+  } catch (e) {
+    console.error("Firebase Initialization Error:", e);
   }
-  auth = firebase.auth();
-  db = firebase.firestore();
 }
+
+// Accessors
+const auth = isFirebaseConfigured ? firebase.auth() : null;
+const db = isFirebaseConfigured ? firebase.firestore() : null;
 
 const getLocalGuestUser = (): UserState | null => {
     const local = localStorage.getItem('chronos_user');
     if (local) {
-        const parsed = JSON.parse(local);
-        if (parsed.uid && parsed.uid.startsWith('guest-')) {
-            return parsed;
-        }
+        try {
+            const parsed = JSON.parse(local);
+            if (parsed.uid && parsed.uid.startsWith('guest-')) {
+                return parsed;
+            }
+        } catch (e) {}
     }
     return null;
 };
 
 export const signInWithGoogle = async (): Promise<UserState | null> => {
-  if (!isFirebaseConfigured) return createGuestUser();
+  if (!isFirebaseConfigured || !auth) {
+      console.warn("Google Sign-In aborted: Firebase not configured.");
+      return null;
+  }
+  
   try {
     const provider = new firebase.auth.GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
+    
     const result = await auth.signInWithPopup(provider);
+    
     if (result.user) {
       const guestData = getLocalGuestUser();
       return await fetchOrCreateUserProfile(result.user, guestData);
@@ -53,16 +63,20 @@ export const signInWithGoogle = async (): Promise<UserState | null> => {
     return null;
   } catch (error: any) {
     console.error("Sign in failed", error);
-    if (error.code === 'auth/unauthorized-domain' || error.code === 'auth/operation-not-allowed') {
-        alert("Domain not authorized. Falling back to Guest Mode.");
-        return createGuestUser();
+    if (error.code === 'auth/unauthorized-domain') {
+        alert("Domain unauthorized. Add this domain to Firebase Console > Auth > Settings.");
+    } else if (error.code === 'auth/popup-closed-by-user') {
+        // User cancelled, do nothing
+        console.log("User closed popup");
+    } else {
+        alert(`Login Error: ${error.message}`);
     }
     return null;
   }
 };
 
 export const registerWithEmailAndPassword = async (email: string, pass: string, name: string): Promise<UserState> => {
-    if (!isFirebaseConfigured) throw new Error("Firebase not configured");
+    if (!auth) throw new Error("Firebase not configured");
     const result = await auth.createUserWithEmailAndPassword(email, pass);
     if (result.user) {
         await result.user.updateProfile({ displayName: name });
@@ -74,7 +88,7 @@ export const registerWithEmailAndPassword = async (email: string, pass: string, 
 };
 
 export const logInWithEmailAndPassword = async (email: string, pass: string): Promise<UserState> => {
-    if (!isFirebaseConfigured) throw new Error("Firebase not configured");
+    if (!auth) throw new Error("Firebase not configured");
     const result = await auth.signInWithEmailAndPassword(email, pass);
     if (result.user) {
         const guestData = getLocalGuestUser();
@@ -97,12 +111,12 @@ export const createGuestUser = (): UserState => {
 }
 
 export const signOut = async () => {
-  if (isFirebaseConfigured) await auth.signOut();
+  if (auth) await auth.signOut();
   localStorage.removeItem('chronos_user');
 };
 
 export const deleteAccount = async (user: UserState) => {
-  if (isFirebaseConfigured && user.uid && !user.uid.startsWith('guest-')) {
+  if (auth && db && user.uid && !user.uid.startsWith('guest-')) {
     await db.collection('users').doc(user.uid).delete();
     const currentUser = auth.currentUser;
     if (currentUser) await currentUser.delete();
@@ -112,27 +126,49 @@ export const deleteAccount = async (user: UserState) => {
 
 export const subscribeToAuthChanges = (callback: (user: UserState | null) => void) => {
   const local = localStorage.getItem('chronos_user');
+  let localUser: UserState | null = null;
   if (local) {
-      const parsed = JSON.parse(local);
-      if (parsed.uid.startsWith('guest-')) callback(parsed);
+      try {
+        const parsed = JSON.parse(local);
+        if (parsed.uid.startsWith('guest-')) localUser = parsed;
+      } catch (e) {}
   }
-  if (!isFirebaseConfigured) {
-    callback(local ? JSON.parse(local) : null);
-    return () => {};
+
+  // If we have a local guest user, immediately callback with it to prevent flash
+  if (localUser && !auth) {
+      callback(localUser);
+      return () => {};
   }
-  return auth.onAuthStateChanged(async (firebaseUser) => {
-    if (firebaseUser) {
-      const userProfile = await fetchOrCreateUserProfile(firebaseUser, null);
-      callback(userProfile);
-    } else {
-      const local = localStorage.getItem('chronos_user');
-      if (local && JSON.parse(local).uid.startsWith('guest-')) callback(JSON.parse(local));
-      else callback(null);
-    }
-  });
+
+  if (auth) {
+      return auth.onAuthStateChanged(async (firebaseUser) => {
+        if (firebaseUser) {
+          const userProfile = await fetchOrCreateUserProfile(firebaseUser, null);
+          callback(userProfile);
+        } else {
+          // If logged out from Firebase, check if we revert to a local guest or null
+          const stored = localStorage.getItem('chronos_user');
+          if (stored) {
+              try {
+                  const p = JSON.parse(stored);
+                  if (p.uid.startsWith('guest-')) {
+                      callback(p);
+                      return;
+                  }
+              } catch(e) {}
+          }
+          callback(null);
+        }
+      });
+  } else {
+      callback(localUser);
+      return () => {};
+  }
 };
 
 const fetchOrCreateUserProfile = async (firebaseUser: firebase.User, guestData: UserState | null): Promise<UserState> => {
+  if (!db) throw new Error("Database not connected");
+  
   const userRef = db.collection('users').doc(firebaseUser.uid);
   const snap = await userRef.get();
   const now = new Date();
@@ -187,7 +223,7 @@ const fetchOrCreateUserProfile = async (firebaseUser: firebase.User, guestData: 
 
 export const updateUserProgress = async (user: UserState, updates: Partial<UserState>) => {
   const updatedUser = { ...user, ...updates };
-  if (isFirebaseConfigured && user.uid && !user.uid.startsWith('guest-')) {
+  if (db && user.uid && !user.uid.startsWith('guest-')) {
     try {
         await db.collection('users').doc(user.uid).update(updates);
     } catch (e) { console.error("Sync error", e); }
@@ -201,7 +237,7 @@ const saveUserLocally = (user: UserState) => {
 };
 
 export const getFriendDetails = async (friendUids: string[]): Promise<LeagueMember[]> => {
-    if (!isFirebaseConfigured || friendUids.length === 0) return [];
+    if (!db || friendUids.length === 0) return [];
     try {
         const chunks = friendUids.slice(0, 10);
         const q = db.collection('users').where(firebase.firestore.FieldPath.documentId(), 'in', chunks);
@@ -222,7 +258,7 @@ export const getFriendDetails = async (friendUids: string[]): Promise<LeagueMemb
 };
 
 export const addFriend = async (currentUser: UserState, friendUid: string): Promise<UserState> => {
-    if (!isFirebaseConfigured) return currentUser;
+    if (!db) return currentUser;
     if (currentUser.friends.includes(friendUid)) return currentUser;
     const friendDoc = await db.collection('users').doc(friendUid).get();
     if (!friendDoc.exists) throw new Error("User not found");
@@ -250,7 +286,7 @@ const getCachedBots = (count: number): LeagueMember[] => {
 
 export const getLeagueLeaderboard = async (): Promise<LeagueMember[]> => {
   let realUsers: LeagueMember[] = [];
-  if (isFirebaseConfigured) {
+  if (db) {
     try {
       const usersRef = db.collection('users');
       const querySnapshot = await usersRef.orderBy('xp', 'desc').limit(10).get();
@@ -282,13 +318,9 @@ export const getLeagueLeaderboard = async (): Promise<LeagueMember[]> => {
 const generateSmartBots = (count: number): LeagueMember[] => {
   const bots: LeagueMember[] = [];
   const civs = Object.values(CivType);
-  // 0 = Sunday. We want league to end Sunday night, so day 0 is actually Day 7 effectively.
-  // 1 = Mon (Day 1), 6 = Sat (Day 6).
   let dayOfWeek = new Date().getDay();
   if (dayOfWeek === 0) dayOfWeek = 7; 
   
-  // Realistic XP: ~80-100 XP per day for an active user.
-  // We add some variance so not all bots are the same.
   const baseDailyXp = 80; 
 
   for (let i = 0; i < count; i++) {
@@ -296,10 +328,7 @@ const generateSmartBots = (count: number): LeagueMember[] => {
     const names = LEAGUE_BOT_POOL[randomCiv];
     const name = names[Math.floor(Math.random() * names.length)] + `_${Math.floor(Math.random() * 100)}`;
     
-    // Variance: Some bots are slackers (0.5), some are grinders (1.5)
     const skillMultiplier = (Math.random() * 1.0) + 0.5; 
-    
-    // Bot XP = DaysPassed * DailyRate * Skill
     const botXp = Math.floor(dayOfWeek * baseDailyXp * skillMultiplier);
     
     const randomAvatar = AVATARS[Math.floor(Math.random() * AVATARS.length)];

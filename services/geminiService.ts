@@ -24,19 +24,29 @@ export const generateLessonContent = async (skeletonLesson: Lesson): Promise<Les
   const topic = skeletonLesson.topic;
   
   const prompt = `
-    You are a historian designing a lesson for a "Hardcore History" style learning app.
+    You are a historian designing a lesson for a "Hardcore History" / "Fall of Civilizations" style learning app.
     Topic: "${topic}" for the Civilization: "${civName}".
     
     Generate a JSON object representing a lesson with EXACTLY 3 activities.
     
-    Activity 1: Type "READING". A dramatic, narrative paragraph (80-120 words) teaching the core concept. Include 'mascotGuidance' (a short, witty or profound comment from the civ's leader).
-    Activity 2: Type "QUIZ". A multiple choice question with 4 options.
+    Activity 1: Type "READING". A dramatic, narrative paragraph (100-150 words) teaching the core concept using immersive storytelling.
+       - 'mascotGuidance': A short, witty or profound comment from the civ's leader (e.g. Augustus, Justinian).
+       - 'scholarNotes': A deep, nuanced historical footnote (60-100 words). Focus on historiography, conflicting sources, archaeological evidence, or the "grim reality" often skipped in textbooks. Tone: Intellectual, slightly dark, "Director's Cut" commentary.
+       - 'imageKeyword': Visual prompt for an AI image generator. 
+          * IF the topic is an object/artifact (sword, coin, statue): "${topic} artifact, isolated on white background, studio lighting, hyperdetailed, 8k".
+          * IF the topic is an event/place: "Cinematic wide shot of ${topic}, atmospheric lighting, photorealistic, 8k, movie still".
+    
+    Activity 2: Type "QUIZ". Choose ONE of the following formats to ensure variety:
+       - Format A: Multiple Choice (4 options, 1 correct).
+       - Format B: True/False (Options: ["True", "False"]).
+       - Format C: Fill-in-the-Blank (The 'question' is a sentence with a _____. Options are word choices).
+       Ensure the question tests critical thinking or specific details from the reading.
+    
     Activity 3: Type "SORTING" or "MATCHING". 
        - If SORTING: Provide 4 items in chronological or logical order.
        - If MATCHING: Provide 3 pairs of terms and definitions.
     
     The JSON structure must match the schema exactly.
-    IMPORTANT: For 'imageKeyword', provide a specific, visual description of a historical artifact or scene suitable for generating an image (e.g. "Roman legionary throwing pilum", "Egyptian workers placing pyramid stone").
   `;
 
   try {
@@ -87,9 +97,11 @@ export const generateLessonContent = async (skeletonLesson: Lesson): Promise<Les
     
     // Enrich with generated images and IDs
     const enrichedActivities = data.activities.map((act: any, idx: number) => {
-        const keyword = act.imageKeyword || topic || "history";
-        // Use Pollinations for reliable AI art based on the prompt
-        const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(keyword + ", historical, cinematic lighting, 8k, museum style")}?width=800&height=600&nologo=true&seed=${Math.random()}`;
+        // Use the AI's specific keyword instructions for better control (isolation vs cinematic)
+        const keyword = act.imageKeyword || topic + ", historical artifact";
+        
+        // We do minimal post-processing on the prompt to let the LLM control the style (white background vs cinematic)
+        const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(keyword)}?width=800&height=600&nologo=true&seed=${Math.random()}`;
         
         return {
             ...act,

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { signInWithGoogle, registerWithEmailAndPassword, logInWithEmailAndPassword } from '../services/firebase';
 import { UserState } from '../types';
@@ -45,12 +46,19 @@ const AuthModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, initialMode = 
 
   const handleGoogle = async () => {
       setError(null);
-      const user = await signInWithGoogle();
-      if (user) {
-          onSuccess(user);
-          onClose();
-      } else {
-          // Could be user cancelled or error
+      setIsLoading(true);
+      try {
+          const user = await signInWithGoogle();
+          if (user) {
+              onSuccess(user);
+              onClose();
+          } else {
+              setError("Sign in failed. Check console or try again.");
+          }
+      } catch (e) {
+          setError("Google Sign In Error. Please try again.");
+      } finally {
+          setIsLoading(false);
       }
   };
 
@@ -60,13 +68,13 @@ const AuthModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, initialMode = 
         {/* Header Tabs */}
         <div className="flex border-b border-slate-700">
           <button 
-            onClick={() => setMode('login')}
+            onClick={() => { setMode('login'); setError(null); }}
             className={`flex-1 py-4 font-serif font-bold transition-colors ${mode === 'login' ? 'bg-slate-800 text-amber-500' : 'text-slate-500 hover:text-slate-300'}`}
           >
             LOGIN
           </button>
           <button 
-            onClick={() => setMode('signup')}
+            onClick={() => { setMode('signup'); setError(null); }}
             className={`flex-1 py-4 font-serif font-bold transition-colors ${mode === 'signup' ? 'bg-slate-800 text-amber-500' : 'text-slate-500 hover:text-slate-300'}`}
           >
             SIGN UP
@@ -117,7 +125,7 @@ const AuthModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, initialMode = 
                     />
                 </div>
 
-                {error && <p className="text-red-500 text-sm font-bold text-center">{error}</p>}
+                {error && <p className="text-red-500 text-sm font-bold text-center bg-red-900/20 p-2 rounded border border-red-900/50">{error}</p>}
 
                 <button 
                     type="submit"
@@ -137,7 +145,8 @@ const AuthModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, initialMode = 
             <button 
                 onClick={handleGoogle}
                 type="button"
-                className="w-full py-3 bg-white text-slate-900 font-bold rounded-lg hover:bg-slate-200 transition-colors flex items-center justify-center gap-2"
+                disabled={isLoading}
+                className="w-full py-3 bg-white text-slate-900 font-bold rounded-lg hover:bg-slate-200 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
             >
                  <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" className="w-5 h-5" alt="G" />
                  Continue with Google
