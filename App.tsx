@@ -1,8 +1,7 @@
 
-
 import React, { useState, useEffect } from 'react';
 import { LESSON_DATA } from './constants';
-import { UserState, CivType } from './types';
+import { UserState, CivType, Lesson } from './types';
 import Sidebar from './components/Sidebar';
 import BackgroundMusic from './components/BackgroundMusic';
 import Dashboard from './pages/Dashboard';
@@ -13,6 +12,7 @@ import League from './pages/League';
 import Settings from './pages/Settings';
 import Profile from './pages/Profile';
 import AuthModal from './components/AuthModal';
+import CivSwitcher from './components/CivSwitcher';
 import { 
   subscribeToAuthChanges, 
   updateUserProgress, 
@@ -26,6 +26,7 @@ const App: React.FC = () => {
   const [activeLessonId, setActiveLessonId] = useState<string | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'login'|'signup'>('login');
+  const [showCivSwitcher, setShowCivSwitcher] = useState(false);
 
   useEffect(() => {
     const unsubscribe = subscribeToAuthChanges((u) => {
@@ -37,53 +38,48 @@ const App: React.FC = () => {
 
   useEffect(() => {
     if (!user) return;
-    
     const theme = user.settings?.theme || 'dark';
     const root = window.document.documentElement;
-    
     let isDark = theme === 'dark';
     if (theme === 'system') {
         isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     }
-    
-    if (isDark) {
-        root.classList.add('dark');
-    } else {
-        root.classList.remove('dark');
-    }
+    if (isDark) root.classList.add('dark');
+    else root.classList.remove('dark');
   }, [user?.settings?.theme]);
 
-  // --- Dynamic Lesson State Logic ---
-  const enrichLessons = (lessons: typeof LESSON_DATA, currentUser: UserState) => {
+  // Merge Static Curriculum with User-Generated AI Lessons
+  const getMergedLessons = (currentUser: UserState) => {
+      if (!currentUser) return [];
+      
+      const civRaw = LESSON_DATA.filter(l => l.civ === currentUser.currentCiv);
+      
+      return civRaw.map(staticLesson => {
+          // If the user has a generated version of this lesson cached, use it
+          if (currentUser.generatedLessons && currentUser.generatedLessons[staticLesson.id]) {
+              return currentUser.generatedLessons[staticLesson.id];
+          }
+          return staticLesson;
+      });
+  };
+
+  const enrichLessons = (lessons: Lesson[], currentUser: UserState) => {
      return lessons.map((lesson, index) => {
-         // Check if this specific lesson ID is in the user's completed list
          const isCompleted = currentUser.completedLessons.includes(lesson.id);
-         
-         // Logic for locking:
-         // 1. If it's the first lesson of the CIV unit, it's unlocked by default.
-         // 2. Otherwise, it unlocks only if the immediately preceding lesson is completed.
          let isLocked = true;
-         if (index === 0) {
-             isLocked = false;
-         } else {
+         if (index === 0) isLocked = false;
+         else {
              const prevLesson = lessons[index - 1];
-             if (currentUser.completedLessons.includes(prevLesson.id)) {
-                 isLocked = false;
-             }
+             if (currentUser.completedLessons.includes(prevLesson.id)) isLocked = false;
          }
-         
-         // If a lesson is completed, it must be unlocked (sanity check)
          if (isCompleted) isLocked = false;
-         
          return { ...lesson, completed: isCompleted, locked: isLocked };
      });
   };
 
-  const currentCivRawLessons = LESSON_DATA.filter(l => l.civ === user?.currentCiv);
-  const currentCivLessons = user ? enrichLessons(currentCivRawLessons, user) : [];
-  
-  const activeLesson = activeLessonId ? LESSON_DATA.find(l => l.id === activeLessonId) : null;
-  
+  const rawLessons = user ? getMergedLessons(user) : [];
+  const currentCivLessons = user ? enrichLessons(rawLessons, user) : [];
+  const activeLesson = activeLessonId ? rawLessons.find(l => l.id === activeLessonId) : null;
   const isGuest = user && user.uid.startsWith('guest-');
 
   // --- Handlers ---
@@ -100,16 +96,8 @@ const App: React.FC = () => {
 
   const handleOnboardCiv = async (civ: CivType, name?: string) => {
       if (!user) return;
-      
-      const updates: Partial<UserState> = { 
-          currentCiv: civ, 
-          hasOnboarded: true 
-      };
-      
-      if (name && name.trim().length > 0) {
-          updates.displayName = name.trim();
-      }
-
+      const updates: Partial<UserState> = { currentCiv: civ, hasOnboarded: true };
+      if (name?.trim()) updates.displayName = name.trim();
       const updatedUser = await updateUserProgress(user, updates);
       setUser(updatedUser);
   };
@@ -121,119 +109,81 @@ const App: React.FC = () => {
       setCurrentView('dashboard');
   };
 
-  const startLesson = (id: string) => {
-    setActiveLessonId(id);
-  };
+  const startLesson = (id: string) => { setActiveLessonId(id); };
 
-  const completeLesson = async (earnedXp: number) => {
+  const completeLesson = async (earnedXp: number, generatedLesson?: Lesson) => {
     if (!user || !activeLessonId) return;
     
     const today = new Date().toDateString();
     const lastLogin = new Date(user.lastLoginDate).toDateString();
     let newStreak = user.streak;
-    
-    // Simple streak logic: if logged in on a different day than last time, increment
-    // Real prod logic would check if it's exactly the *next* day.
-    if (today !== lastLogin) {
-        newStreak += 1; 
-    }
+    if (today !== lastLogin) newStreak += 1;
 
-    // Prevent duplicate XP/Completion for same lesson
     let newCompleted = [...user.completedLessons];
     let xpToAdd = 0;
-    
     if (!newCompleted.includes(activeLessonId)) {
         newCompleted.push(activeLessonId);
         xpToAdd = earnedXp;
-    } else {
-        // Reduced XP for replay
-        xpToAdd = 10; 
-    }
+    } else xpToAdd = 10;
 
-    const updates = {
+    const updates: Partial<UserState> = {
         xp: user.xp + xpToAdd,
         completedLessons: newCompleted,
         streak: newStreak,
         lastLoginDate: new Date().toISOString()
     };
+
+    // Save generated content to persist it
+    if (generatedLesson) {
+        updates.generatedLessons = {
+            ...user.generatedLessons,
+            [generatedLesson.id]: generatedLesson
+        };
+    }
     
-    // Save to backend/local
     const updatedUser = await updateUserProgress(user, updates);
-    
-    // Update local state immediately
     setUser(updatedUser);
-    
-    // Close lesson
     setActiveLessonId(null);
   };
 
-  if (loading) return <div className="h-screen bg-white flex items-center justify-center text-slate-900 font-duo font-bold text-2xl">Loading Chronos...</div>;
+  if (loading) return <div className="h-screen bg-stone-100 flex items-center justify-center text-stone-900 font-serif font-bold text-2xl uppercase tracking-widest">Initializing Chronos...</div>;
 
   if (!user) {
       return (
-          <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 font-duo text-center relative overflow-hidden">
-              {/* Background Pattern */}
+          <div className="min-h-screen bg-stone-100 flex flex-col items-center justify-center p-6 font-serif text-center relative overflow-hidden">
               <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 pointer-events-none"></div>
-
               <div className="max-w-4xl w-full flex flex-col md:flex-row items-center gap-12 z-10">
-                  
-                  {/* Hero Logo */}
                   <div className="flex-1 flex justify-center animate-bounce-slow">
                       <div className="w-64 h-64 md:w-80 md:h-80 relative">
-                        {/* Glow */}
-                        <div className="absolute inset-0 bg-amber-400 blur-3xl opacity-20 rounded-full"></div>
+                        <div className="absolute inset-0 bg-amber-500 blur-3xl opacity-20 rounded-full"></div>
                         <img 
                             src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Hourglass_modern.svg/1200px-Hourglass_modern.svg.png" 
                             alt="Chronos Logo" 
-                            className="relative w-full h-full object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-500"
+                            className="relative w-full h-full object-contain drop-shadow-2xl"
                         />
                       </div>
                   </div>
-
-                  {/* CTA Section */}
                   <div className="flex-1 flex flex-col items-center md:items-start gap-6">
-                      <h1 className="text-4xl md:text-5xl font-extrabold text-slate-800 leading-tight">
-                          History is not just dates. <br/>
-                          <span className="text-amber-600">It's a story.</span>
+                      <h1 className="text-4xl md:text-5xl font-black text-stone-800 leading-tight tracking-tight uppercase">
+                          HISTORY <span className="text-amber-700">REFORGED</span>
                       </h1>
-                      <p className="text-lg text-slate-500 font-medium max-w-md">
-                          Experience the rise and fall of civilizations through interactive narratives and gamified lessons.
+                      <p className="text-lg text-stone-600 font-medium max-w-md leading-relaxed">
+                          Tactical lessons. Immersive narratives. <br/>A living timeline.
                       </p>
-                      
                       <div className="w-full max-w-sm space-y-4 pt-4">
-                          {/* PRIMARY: GET STARTED (SIGN UP) */}
-                          <button 
-                            onClick={() => handleOpenAuth('signup')}
-                            className="w-full bg-amber-500 hover:bg-amber-400 text-white border-b-4 border-amber-700 active:border-b-0 active:translate-y-1 py-4 rounded-2xl font-extrabold text-sm uppercase tracking-widest transition-all shadow-xl"
-                          >
-                              Get Started
+                          <button onClick={() => handleOpenAuth('signup')} className="w-full bg-amber-700 hover:bg-amber-600 text-white border-2 border-amber-900 shadow-lg py-4 rounded-sm font-bold text-sm uppercase tracking-widest transition-all">
+                              Begin Campaign
                           </button>
-                          
-                          {/* SECONDARY: LOGIN */}
-                          <button 
-                            onClick={() => handleOpenAuth('login')}
-                            className="w-full bg-white hover:bg-gray-50 text-slate-700 border-2 border-gray-200 border-b-4 hover:border-gray-300 active:border-b-0 active:translate-y-1 py-4 rounded-2xl font-extrabold text-sm uppercase tracking-widest transition-all"
-                          >
-                              I already have an account
+                          <button onClick={() => handleOpenAuth('login')} className="w-full bg-white hover:bg-stone-50 text-stone-800 border-2 border-stone-300 py-4 rounded-sm font-bold text-sm uppercase tracking-widest transition-all shadow-sm">
+                              Resume Operation
                           </button>
-
-                          {/* TERTIARY: GUEST */}
-                          <button 
-                            onClick={() => handleGuestEntry()}
-                            className="w-full text-slate-400 hover:text-slate-600 font-bold text-xs uppercase tracking-widest py-2 transition-colors"
-                          >
-                              Try as Guest
+                          <button onClick={() => handleGuestEntry()} className="w-full text-stone-400 hover:text-stone-600 font-bold text-xs uppercase tracking-widest py-2 transition-colors">
+                              Guest Clearance
                           </button>
                       </div>
                   </div>
               </div>
-
-              <AuthModal 
-                isOpen={showAuthModal} 
-                onClose={() => setShowAuthModal(false)} 
-                onSuccess={(u) => setUser(u)}
-                initialMode={authMode}
-              />
+              <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} onSuccess={(u) => setUser(u)} initialMode={authMode} />
           </div>
       )
   }
@@ -255,55 +205,30 @@ const App: React.FC = () => {
 
   const renderContent = () => {
     switch (currentView) {
-      case 'dashboard':
-        return <Dashboard lessons={currentCivLessons} user={user} onStartLesson={startLesson} onSwitchCiv={handleSwitchCiv} />;
-      case 'league':
-        return <League user={user} />;
-      case 'map':
-        return <EmpireMap user={user} />;
-      case 'profile':
-        return <Profile user={user} onUpdateUser={setUser} />;
-      case 'settings':
-        return <Settings user={user} onUpdateUser={setUser} />;
-      default:
-        return <Dashboard lessons={currentCivLessons} user={user} onStartLesson={startLesson} onSwitchCiv={handleSwitchCiv} />;
+      case 'dashboard': return <Dashboard lessons={currentCivLessons} user={user} onStartLesson={startLesson} onSwitchCiv={() => setShowCivSwitcher(true)} />;
+      case 'league': return <League user={user} />;
+      case 'map': return <EmpireMap user={user} />;
+      case 'profile': return <Profile user={user} onUpdateUser={setUser} />;
+      case 'settings': return <Settings user={user} onUpdateUser={setUser} />;
+      default: return <Dashboard lessons={currentCivLessons} user={user} onStartLesson={startLesson} onSwitchCiv={() => setShowCivSwitcher(true)} />;
     }
   };
 
   return (
-    <div className="flex min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 overflow-hidden transition-colors duration-300 font-duo">
+    <div className="flex min-h-screen bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 overflow-hidden transition-colors duration-300 font-serif">
       <BackgroundMusic volume={user.settings?.musicVolume ?? 0.3} currentCiv={user.currentCiv} />
-      
-      <Sidebar 
-        user={user} 
-        currentView={currentView} 
-        onNavigate={setCurrentView} 
-        onSwitchCiv={handleSwitchCiv}
-        onOpenAuth={() => handleOpenAuth('signup')}
-      />
-
+      <Sidebar user={user} currentView={currentView} onNavigate={setCurrentView} onSwitchCiv={(c) => handleSwitchCiv(c)} onOpenAuth={() => handleOpenAuth('signup')} />
       {isGuest && (
-          <div className="absolute top-0 left-0 md:left-64 right-0 bg-amber-500 text-white px-4 py-3 z-30 flex items-center justify-center gap-4 text-sm font-bold shadow-sm">
-              <span>Guest Mode Active. Data not synced.</span>
-              <button 
-                onClick={() => handleOpenAuth('signup')}
-                className="bg-white text-amber-600 px-4 py-1 rounded-xl border-b-2 border-amber-200 active:border-b-0 active:translate-y-px transition-all uppercase text-xs tracking-wider"
-              >
-                  Save Progress
-              </button>
+          <div className="absolute top-0 left-0 md:left-64 right-0 bg-amber-700 text-white px-4 py-2 z-30 flex items-center justify-center gap-4 text-[10px] font-bold shadow-md uppercase tracking-widest">
+              <span>Guest Mode</span>
+              <button onClick={() => handleOpenAuth('signup')} className="bg-white text-amber-800 px-3 py-0.5 rounded-sm border border-amber-900 transition-all">Save Data</button>
           </div>
       )}
-
-      <main className={`flex-1 md:ml-64 h-screen overflow-y-auto relative scroll-smooth ${isGuest ? 'pt-14' : ''}`}>
+      <main className={`flex-1 md:ml-64 h-screen overflow-y-auto relative scroll-smooth ${isGuest ? 'pt-10' : ''}`}>
         {renderContent()}
       </main>
-
-      <AuthModal 
-        isOpen={showAuthModal} 
-        onClose={() => setShowAuthModal(false)} 
-        onSuccess={(u) => setUser(u)}
-        initialMode={authMode}
-      />
+      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} onSuccess={(u) => setUser(u)} initialMode={authMode} />
+      <CivSwitcher isOpen={showCivSwitcher} onClose={() => setShowCivSwitcher(false)} currentCiv={user.currentCiv} onSelect={handleSwitchCiv} />
     </div>
   );
 };

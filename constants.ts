@@ -1,5 +1,5 @@
 
-import { ActivityType, CivType, Lesson, UserState, LeagueTier, LeagueMember, Achievement, Avatar, MascotIntel } from './types';
+import { ActivityType, CivType, Lesson, UserState, Achievement, Avatar, MascotIntel } from './types';
 
 export const INITIAL_USER_STATE: UserState = {
   uid: '',
@@ -22,12 +22,13 @@ export const INITIAL_USER_STATE: UserState = {
   },
   avatarId: 'recruit_default',
   unlockedAvatars: ['recruit_default', 'scholar_default'],
-  friends: []
+  friends: [],
+  generatedLessons: {}
 };
 
-// Fallback generator
 export const getImage = (keyword: string) => {
-  const prompt = encodeURIComponent(`historical museum artifact photo, high quality, ${keyword}`);
+  // Use Pollinations for reliable AI art based on the prompt
+  const prompt = encodeURIComponent(`historical museum artifact photo, high quality, ${keyword}, 8k, photorealistic`);
   return `https://image.pollinations.ai/prompt/${prompt}?width=800&height=600&nologo=true&seed=${Math.random()}`;
 };
 
@@ -38,16 +39,17 @@ export const CIV_MUSIC = {
   [CivType.PERSIA]: "https://cdn.pixabay.com/audio/2024/09/11/audio_4024847e30.mp3"
 };
 
+// Tactical Historian Aesthetics - Desaturated, rich tones, distinct borders
 export const CIV_THEMES = {
   [CivType.ROME]: {
-    primary: 'bg-red-600', 
-    dark: 'bg-red-800',
-    border: 'border-red-800',
-    text: 'text-red-700',
-    bgLight: 'bg-red-50',
-    gradient: 'from-red-600 to-red-700',
-    accent: 'border-red-600',
-    secondary: 'text-red-500',
+    primary: 'bg-red-800', 
+    dark: 'bg-red-950',
+    border: 'border-red-900',
+    text: 'text-red-900',
+    bgLight: 'bg-stone-200',
+    gradient: 'from-red-900 to-stone-900',
+    accent: 'border-red-800',
+    secondary: 'text-red-800',
     icon: '🏛️',
     symbolUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Vexilloid_of_the_Roman_Empire.svg/512px-Vexilloid_of_the_Roman_Empire.svg.png',
     coverImage: 'https://images.unsplash.com/photo-1552832230-c0197dd311b5?q=80&w=800&auto=format&fit=crop',
@@ -59,16 +61,16 @@ export const CIV_THEMES = {
     props: ['🏛️', '🛡️']
   },
   [CivType.EGYPT]: {
-    primary: 'bg-yellow-500',
-    dark: 'bg-yellow-700',
-    border: 'border-yellow-700',
-    text: 'text-yellow-800',
-    bgLight: 'bg-yellow-50',
-    gradient: 'from-yellow-400 to-yellow-500',
-    accent: 'border-yellow-500',
-    secondary: 'text-yellow-600',
+    primary: 'bg-amber-700',
+    dark: 'bg-amber-950',
+    border: 'border-amber-900',
+    text: 'text-amber-900',
+    bgLight: 'bg-orange-50',
+    gradient: 'from-amber-800 to-stone-900',
+    accent: 'border-amber-700',
+    secondary: 'text-amber-800',
     icon: '👁️',
-    symbolUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Wedjat_%28Udjat%29_eye_amulet_MET_DP115664.jpg/800px-Wedjat_%28Udjat%29_eye_amulet_MET_DP115664.jpg',
+    symbolUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Eye_of_Horus_colored.svg/512px-Eye_of_Horus_colored.svg.png',
     coverImage: 'https://images.unsplash.com/photo-1503177119275-0aa32b3a9368?q=80&w=800&auto=format&fit=crop',
     mascot: 'Tutankhamen',
     mascotImage: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/Tutanchamun_Maske.jpg/640px-Tutanchamun_Maske.jpg',
@@ -78,17 +80,17 @@ export const CIV_THEMES = {
     props: ['🌴', '🏺']
   },
   [CivType.BYZANTIUM]: {
-    primary: 'bg-purple-600',
-    dark: 'bg-purple-800',
-    border: 'border-purple-800',
-    text: 'text-purple-700',
-    bgLight: 'bg-purple-50',
-    gradient: 'from-purple-600 to-purple-700',
-    accent: 'border-purple-600',
-    secondary: 'text-purple-500',
+    primary: 'bg-indigo-800',
+    dark: 'bg-indigo-950',
+    border: 'border-indigo-900',
+    text: 'text-indigo-900',
+    bgLight: 'bg-indigo-50',
+    gradient: 'from-indigo-900 to-stone-900',
+    accent: 'border-indigo-800',
+    secondary: 'text-indigo-800',
     icon: '⛪',
     symbolUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Chi_Rho.svg/800px-Chi_Rho.svg.png',
-    coverImage: 'https://images.unsplash.com/photo-1596367407072-acf97105cb36?q=80&w=800&auto=format&fit=crop',
+    coverImage: 'https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?q=80&w=800&auto=format&fit=crop',
     mascot: 'Justinian',
     mascotImage: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Mosaic_of_Justinian_I_-_Basilica_San_Vitale_%28Ravenna%29.jpg/640px-Mosaic_of_Justinian_I_-_Basilica_San_Vitale_%28Ravenna%29.jpg',
     description: "The Golden City",
@@ -97,14 +99,14 @@ export const CIV_THEMES = {
     props: ['⛪', '📜']
   },
   [CivType.PERSIA]: {
-    primary: 'bg-teal-600',
-    dark: 'bg-teal-800',
-    border: 'border-teal-800',
-    text: 'text-teal-700',
+    primary: 'bg-teal-800',
+    dark: 'bg-teal-950',
+    border: 'border-teal-900',
+    text: 'text-teal-900',
     bgLight: 'bg-teal-50',
-    gradient: 'from-teal-600 to-teal-700',
-    accent: 'border-teal-600',
-    secondary: 'text-teal-500',
+    gradient: 'from-teal-900 to-stone-900',
+    accent: 'border-teal-800',
+    secondary: 'text-teal-800',
     icon: '🦁',
     symbolUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Simurgh.svg/800px-Simurgh.svg.png',
     coverImage: 'https://images.unsplash.com/photo-1579975096649-e773152b04cb?q=80&w=800&auto=format&fit=crop',
@@ -195,13 +197,70 @@ export const ACHIEVEMENTS: Achievement[] = [
   { id: 'gem_hoarder', title: 'Big Spender', description: 'Earn 500 Gems.', icon: '💎', condition: (u) => u.gems >= 500 }
 ];
 
-export const LESSON_DATA: Lesson[] = [
-  // ================= UNIT 1: ROME (THE FOUNDING) =================
+
+// --- DYNAMIC CURRICULUM FRAMEWORK (10 Units x ~10 Topics) ---
+
+const UNIT_STRUCTURE = {
+  [CivType.ROME]: [
+    { title: "The Founding", topics: ["Romulus & Remus", "The Seven Kings", "Birth of Republic"] },
+    { title: "The Republic", topics: ["Struggle of Orders", "Latin Wars", "Samnite Wars", "Pyrrhic Victory", "The Twelve Tables"] },
+    { title: "Punic Wars", topics: ["Hannibal Crossing Alps", "Battle of Cannae", "Scipio Africanus", "Carthage Must Be Destroyed"] },
+    { title: "Crisis", topics: ["The Gracchi Brothers", "Marius & Sulla", "Spartacus Revolt", "Social War"] },
+    { title: "Fall of Republic", topics: ["First Triumvirate", "Caesar's Crossing", "Ides of March", "Antony & Cleopatra"] },
+    { title: "The Empire", topics: ["Augustus Caesar", "Pax Romana", "The Mad Emperors (Caligula/Nero)", "Great Fire of Rome"] },
+    { title: "Peak Power", topics: ["Trajan's Conquests", "Hadrian's Wall", "Marcus Aurelius", "The Antonine Plague"] },
+    { title: "The Decline", topics: ["Crisis of 3rd Century", "Diocletian", "Constantine", "Battle of Milvian Bridge"] },
+    { title: "Christian Rome", topics: ["Edict of Milan", "Council of Nicaea", "Theodosius", "End of Paganism"] },
+    { title: "The Fall", topics: ["Sack of 410", "Attila the Hun", "Romulus Augustulus", "Legacy of Rome"] }
+  ],
+  [CivType.EGYPT]: [
+    { title: "The Old Kingdom", topics: ["Gift of the Nile", "Narmer Unification", "Imhotep & Djoser"] },
+    { title: "Age of Pyramids", topics: ["Great Pyramid of Giza", "The Sphinx", "Collapse of Old Kingdom", "Mummification"] },
+    { title: "Middle Kingdom", topics: ["Mentuhotep II", "Literature & Art", "Hyksos Invasion"] },
+    { title: "New Kingdom", topics: ["Ahmose I", "Hatshepsut", "Thutmose III", "Battle of Megiddo"] },
+    { title: "The Heretic", topics: ["Akhenaten", "Nefertiti", "The Aten", "Amarna Art"] },
+    { title: "The Boy King", topics: ["Tutankhamen", "Restoration", "The Tomb Discovery"] },
+    { title: "Ramesside Era", topics: ["Ramesses II", "Battle of Kadesh", "Abu Simbel", "First Peace Treaty"] },
+    { title: "Third Int. Period", topics: ["Sea Peoples", "Libyan Pharaohs", "Nubian Pharaohs", "Assyrian Invasion"] },
+    { title: "Late Period", topics: ["Persian Conquest", "Alexander the Great", "Ptolemy I", "The Rosetta Stone"] },
+    { title: "The End", topics: ["Library of Alexandria", "Cleopatra VII", "Roman Annexation", "Death of the Gods"] }
+  ],
+  [CivType.BYZANTIUM]: [
+    { title: "New Rome", topics: ["The Great Split", "Constantine's City", "Theodosian Walls"] },
+    { title: "Justinian's Age", topics: ["Justinian & Theodora", "Nika Riots", "Hagia Sophia", "Codex Justinianus"] },
+    { title: "Reconquest", topics: ["Belisarius", "Gothic Wars", "Plague of Justinian", "Ravenna Mosaics"] },
+    { title: "Survival", topics: ["Persian Wars", "Siege of 626", "Heraclius", "Battle of Yarmouk"] },
+    { title: "Arab Invasions", topics: ["Loss of Egypt", "Greek Fire", "Siege of 717", "Theme System"] },
+    { title: "Iconoclasm", topics: ["Smashing Icons", "Religious War", "Empress Irene", "Charlemagne"] },
+    { title: "Golden Age", topics: ["Macedonian Dynasty", "Basil the Slayer", "Conversion of Rus", "Varangian Guard"] },
+    { title: "Decline", topics: ["Great Schism", "Manzikert", "First Crusade", "Komnenian Restoration"] },
+    { title: "The Latin Empire", topics: ["Sack of 1204", "Exile in Nicaea", "Reconquest of 1261"] },
+    { title: "The End", topics: ["Ottoman Rise", "Siege of 1453", "Fall of Constantinople", "Legacy of Byzantium"] }
+  ],
+  [CivType.PERSIA]: [
+    { title: "The Founding", topics: ["The Medes", "Cyrus the Great", "Conquest of Babylon"] },
+    { title: "King of Kings", topics: ["Cambyses II", "Darius the Great", "The Satraps", "Behistun Inscription"] },
+    { title: "Greco-Persian Wars", topics: ["Ionian Revolt", "Marathon", "Xerxes Invasion", "Thermopylae"] },
+    { title: "High Empire", topics: ["Persepolis", "Zoroastrianism", "Royal Road", "Garden Paradise (Pairidaeza)"] },
+    { title: "Decline", topics: ["Artaxerxes", "Court Intrigues", "Revolts", "March of the Ten Thousand"] },
+    { title: "Alexander", topics: ["Battle of Gaugamela", "Burning of Persepolis", "Death of Darius III"] },
+    { title: "Seleucids", topics: ["Hellenistic Rule", "Parthian Rise", "Silk Road", "Ctesiphon"] },
+    { title: "Sassanids", topics: ["Ardashir I", "Shapur vs Rome", "Capture of Valerian", "Rock Reliefs"] },
+    { title: "Golden Age", topics: ["Khosrow I", "Academy of Gundishapur", "Eternal Peace", "Mazdakite Movement"] },
+    { title: "The Fall", topics: ["Byzantine War", "Islamic Conquest", "Battle of al-Qadisiyyah", "Survival of Culture"] }
+  ]
+};
+
+// Hardcoded "Hero" lessons (Unit 1, Lessons 1-3) to ensure great first impression
+const HARDCODED_LESSONS = [
+  // ROME UNIT 1
   {
-    id: 'rome-1',
+    id: 'rome-1-1',
     title: 'Brothers of Blood',
     description: 'The myth of Romulus and Remus',
     civ: CivType.ROME,
+    unitId: 1,
+    unitTitle: "The Founding",
     locked: false,
     completed: false,
     xpReward: 100,
@@ -213,7 +272,7 @@ export const LESSON_DATA: Lesson[] = [
         question: 'Origins of Rome',
         narrative: "In the shadow of history, the origins of Rome are shrouded in myth. We are told the Eternal City was founded in **753 BC**, not by a council, but by two brothers: **Romulus and Remus**.\n\nSons of Mars, god of War, they were abandoned in the Tiber River by a jealous king. Destiny, however, does not drown easily.",
         mascotGuidance: "My father Mars gave me my sword. My mother gave me my destiny.",
-        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Rubens_Romulus_and_Remus.jpg/640px-Rubens_Romulus_and_Remus.jpg",
+        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/She-wolf_suckles_Romulus_and_Remus.jpg/640px-She-wolf_suckles_Romulus_and_Remus.jpg",
         imageCredit: "Romulus and Remus, Rubens",
         scholarNotes: "Archaeology confirms settlements on the Palatine Hill dating to the mid-8th century BC, aligning eerily well with the legendary date of 753 BC."
       },
@@ -252,80 +311,15 @@ export const LESSON_DATA: Lesson[] = [
       }
     ]
   },
+  
+  // EGYPT UNIT 1
   {
-    id: 'rome-2',
-    title: 'The Seven Kings',
-    description: 'From Monarchy to Tyranny',
-    civ: CivType.ROME,
-    locked: true,
-    completed: false,
-    xpReward: 100,
-    mapCoordinates: { x: 45, y: 38 },
-    activities: [
-      {
-        id: 'r2-1',
-        type: ActivityType.READING,
-        question: 'The Age of Kings',
-        narrative: "For 250 years, Rome was ruled by kings. The first was Romulus. The second, Numa Pompilius, was a peaceful priest-king who established the **Vestal Virgins** and the calendar.\n\nBut absolute power corrupts. The line ended with the seventh king, **Tarquin the Proud**, a tyrant who murdered senators and ruled by fear.",
-        mascotGuidance: "Kings are useful only until they think they are gods.",
-        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Numa_Pompilius_and_the_Nymph_Egeria.jpg/640px-Numa_Pompilius_and_the_Nymph_Egeria.jpg",
-        imageCredit: "Numa Pompilius, Felice Giani"
-      },
-      {
-        id: 'r2-2',
-        type: ActivityType.MATCHING,
-        question: 'Match the King',
-        pairs: [
-          { term: 'Romulus', definition: 'Founder' },
-          { term: 'Numa', definition: 'Priest' },
-          { term: 'Tarquin', definition: 'Tyrant' }
-        ]
-      },
-      {
-        id: 'r2-3',
-        type: ActivityType.QUIZ,
-        question: "Why was Tarquin hated?",
-        options: ["He was too poor", "He was a tyrant", "He couldn't read", "He was Greek"],
-        correctAnswer: "He was a tyrant"
-      }
-    ]
-  },
-  {
-    id: 'rome-3',
-    title: 'Res Publica',
-    description: 'The Birth of the Republic',
-    civ: CivType.ROME,
-    locked: true,
-    completed: false,
-    xpReward: 120,
-    mapCoordinates: { x: 42, y: 32 },
-    activities: [
-      {
-        id: 'r3-1',
-        type: ActivityType.READING,
-        question: 'The Oath',
-        narrative: "After a crime by the King's son against the noblewoman Lucretia, the Romans snapped. Led by **Brutus**, they expelled Tarquin in 509 BC.\n\nBrutus swore an oath that Rome would **never** again be ruled by a king. They created a *Res Publica* (Public Affair), ruled by two Consuls elected for one year, to prevent tyranny.",
-        mascotGuidance: "Liberty is not given. It is taken.",
-        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Gavin_Hamilton_-_The_Oath_of_Brutus.jpg/800px-Gavin_Hamilton_-_The_Oath_of_Brutus.jpg",
-        imageCredit: "The Oath of Brutus, Gavin Hamilton"
-      },
-      {
-        id: 'r3-2',
-        type: ActivityType.QUIZ,
-        question: "What replaced the King?",
-        options: ["An Emperor", "Two Consuls", "A Priest", "A General"],
-        correctAnswer: "Two Consuls",
-        scholarNotes: "Having two Consuls meant they could veto (forbid) each other. The system was designed to create gridlock so no single man could take over."
-      }
-    ]
-  },
-
-  // ================= UNIT 1: EGYPT (THE FOUNDING) =================
-  {
-    id: 'egypt-1',
+    id: 'egypt-1-1',
     title: 'Gift of the Nile',
     description: 'Life in the Desert',
     civ: CivType.EGYPT,
+    unitId: 1,
+    unitTitle: "The Old Kingdom",
     locked: false,
     completed: false,
     xpReward: 100,
@@ -337,8 +331,8 @@ export const LESSON_DATA: Lesson[] = [
         question: 'The Black Land',
         narrative: "Egypt is the Nile. Without this river, there is only the Sahara. Every year, the river floods, depositing rich black silt.\n\nThe Egyptians called their land **Kemet** (The Black Land), distinguishing it from **Deshret** (The Red Land) of the deadly desert. Life, religion, and time itself were measured by the river's pulse.",
         mascotGuidance: "The river is a god. Respect it.",
-        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Egypt.Giza.Sphinx.01.jpg/800px-Egypt.Giza.Sphinx.01.jpg",
-        imageCredit: "Great Sphinx and Pyramids"
+        customImage: "https://images.unsplash.com/photo-1572252009286-268acec5ca0a?q=80&w=800&auto=format&fit=crop",
+        imageCredit: "The Nile River"
       },
       {
         id: 'e1-2',
@@ -349,72 +343,15 @@ export const LESSON_DATA: Lesson[] = [
       }
     ]
   },
-  {
-    id: 'egypt-2',
-    title: 'Unification',
-    description: 'Narmer and the Two Lands',
-    civ: CivType.EGYPT,
-    locked: true,
-    completed: false,
-    xpReward: 100,
-    mapCoordinates: { x: 50, y: 45 },
-    activities: [
-      {
-        id: 'e2-1',
-        type: ActivityType.READING,
-        question: 'The Two Crowns',
-        narrative: "Before the Pharaohs, there were two Egypts: Upper Egypt (South, White Crown) and Lower Egypt (North, Red Crown).\n\nAround 3100 BC, King **Narmer** conquered the north. He combined the crowns into the **Pschent** (Double Crown), symbolizing total unity. He was the first Lord of the Two Lands.",
-        mascotGuidance: "One king. One river. One people.",
-        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Narmer_Palette.jpg/640px-Narmer_Palette.jpg",
-        imageCredit: "The Narmer Palette"
-      },
-      {
-        id: 'e2-2',
-        type: ActivityType.MATCHING,
-        question: 'Match the Region',
-        pairs: [
-          { term: 'Upper Egypt', definition: 'South (White)' },
-          { term: 'Lower Egypt', definition: 'North (Red)' },
-          { term: 'Narmer', definition: 'Unifier' }
-        ]
-      }
-    ]
-  },
-  {
-    id: 'egypt-3',
-    title: 'Stairway to Heaven',
-    description: 'The First Pyramid',
-    civ: CivType.EGYPT,
-    locked: true,
-    completed: false,
-    xpReward: 120,
-    mapCoordinates: { x: 48, y: 25 },
-    activities: [
-      {
-        id: 'e3-1',
-        type: ActivityType.READING,
-        question: 'Imhotep\'s Genius',
-        narrative: "Early kings were buried in flat benches called *mastabas*. But the architect **Imhotep** had a vision for King Djoser. He stacked six mastabas on top of each other, creating the **Step Pyramid**.\n\nIt was the first skyscraper in history—a giant stone stairway for the Pharaoh's soul to ascend to the stars.",
-        mascotGuidance: "We build for eternity, not for the living.",
-        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Saqqara_pyramid_ver_2.jpg/800px-Saqqara_pyramid_ver_2.jpg",
-        imageCredit: "Step Pyramid of Djoser"
-      },
-      {
-        id: 'e3-2',
-        type: ActivityType.QUIZ,
-        question: "Who designed the first pyramid?",
-        options: ["Djoser", "Narmer", "Imhotep", "Ra"],
-        correctAnswer: "Imhotep"
-      }
-    ]
-  },
 
-  // ================= UNIT 1: BYZANTIUM (THE FOUNDING) =================
+  // BYZANTIUM UNIT 1
   {
-    id: 'byz-1',
-    title: 'The Great Split',
-    description: 'East vs West',
+    id: 'byzantium-1-1',
+    title: 'Crisis & Rebirth',
+    description: 'Diocletian splits the world',
     civ: CivType.BYZANTIUM,
+    unitId: 1,
+    unitTitle: "New Rome",
     locked: false,
     completed: false,
     xpReward: 100,
@@ -423,85 +360,110 @@ export const LESSON_DATA: Lesson[] = [
       {
         id: 'b1-1',
         type: ActivityType.READING,
-        question: 'A Dying Empire',
-        narrative: "By 300 AD, the Roman Empire was too big to rule. It was rotting. Emperor **Diocletian** made a radical decision: he cut the empire in half.\n\nThe West (Rome) was rural and poor. The East (Greece, Egypt, Syria) was urban, rich, and sophisticated. This division saved the Roman name but doomed the city of Rome itself.",
-        mascotGuidance: "Sometimes you must amputate a limb to save the body.",
-        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Venice_-_The_Tetrarchs_03.jpg/800px-Venice_-_The_Tetrarchs_03.jpg",
+        question: 'The World in Chaos',
+        narrative: "By the 3rd Century AD, the Roman Empire was dying. Inflation, civil war, and plague had brought it to its knees. Emperors were assassinated almost every year. It was too vast for one man to rule.",
+        mascotGuidance: "Order had to be restored at any cost.",
+        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Venice_-_The_Tetrarchs_03.jpg/640px-Venice_-_The_Tetrarchs_03.jpg",
         imageCredit: "The Tetrarchs"
       },
       {
         id: 'b1-2',
+        type: ActivityType.READING,
+        question: 'The Great Split',
+        narrative: "Emperor Diocletian made a radical decision: he cut the map in half. He created the **Tetrarchy** (Rule of Four). The West would be ruled from Milan or Rome; the East from Nicomedia. This split saved the empire but doomed the West.",
+        scholarNotes: "The East was far wealthier, with older cities and trade routes. The West was rural and vulnerable to barbarian incursions.",
+        mascotGuidance: "Sometimes you must amputate a limb to save the body."
+      },
+      {
+        id: 'b1-3',
         type: ActivityType.QUIZ,
-        question: "Which half of the empire was richer?",
-        options: ["West", "East", "North", "South"],
-        correctAnswer: "East"
+        question: "What was the Tetrarchy?",
+        options: ["Rule of One", "Rule of Four", "Democracy", "Anarchy"],
+        correctAnswer: "Rule of Four"
       }
     ]
   },
   {
-    id: 'byz-2',
+    id: 'byzantium-1-2',
     title: 'Nova Roma',
-    description: 'Constantine\'s Vision',
+    description: 'Constantine founds the City',
     civ: CivType.BYZANTIUM,
+    unitId: 1,
+    unitTitle: "New Rome",
     locked: true,
     completed: false,
-    xpReward: 100,
-    mapCoordinates: { x: 55, y: 40 },
+    xpReward: 120,
+    mapCoordinates: { x: 42, y: 40 },
     activities: [
       {
         id: 'b2-1',
         type: ActivityType.READING,
-        question: 'City of Constantine',
-        narrative: "Emperor **Constantine** needed a capital closer to the wealthy East and the Persian frontier. He chose the ancient Greek port of Byzantium on the Bosporus Strait.\n\nIn 330 AD, he dedicated it as **Nova Roma** (New Rome). History knows it as Constantinople. It was a Christian city, free of Rome's pagan past, designed to rule the world.",
-        mascotGuidance: "Rome is the past. This city is the future.",
-        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Constantinople_3d_reconstruction_by_Byzantium_1200.jpg/800px-Constantinople_3d_reconstruction_by_Byzantium_1200.jpg",
-        imageCredit: "Reconstruction of Constantinople"
+        question: 'A New Capital',
+        narrative: "Constantine the Great defeated his rivals and united the empire once more. But he hated Rome—it was pagan, corrupt, and far from the wealthy East. He looked to the strategic city of Byzantium on the **Bosporus Strait**.",
+        mascotGuidance: "I needed a Christian capital for a Christian empire.",
+        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Solidus-Constantine_I-Thessalonica-RIC_186.jpg/640px-Solidus-Constantine_I-Thessalonica-RIC_186.jpg",
+        imageCredit: "Coin of Constantine"
       },
       {
         id: 'b2-2',
         type: ActivityType.MAP_CONQUEST,
-        question: 'Locate Constantinople',
+        question: 'Locate the Bosporus Strait.',
         customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Roman_Empire_with_diocesan_boundaries_300_AD.png/800px-Roman_Empire_with_diocesan_boundaries_300_AD.png",
-        mapTarget: { x: 55, y: 38, label: 'Constantinople' },
-        mapQuiz: { question: "It sits on which strait?", options: ["Bosporus", "Gibraltar", "Nile", "Tiber"], correctAnswer: "Bosporus" }
+        mapTarget: { x: 55, y: 38, label: "Constantinople" },
+        mapQuiz: {
+           question: "Why was this location chosen?",
+           options: ["Good farming", "Controls trade between Europe & Asia", "Near Rome", "It was empty"],
+           correctAnswer: "Controls trade between Europe & Asia"
+        }
       }
     ]
   },
   {
-    id: 'byz-3',
+    id: 'byzantium-1-3',
     title: 'The Walls',
     description: 'The Shield of God',
     civ: CivType.BYZANTIUM,
+    unitId: 1,
+    unitTitle: "New Rome",
     locked: true,
     completed: false,
-    xpReward: 120,
-    mapCoordinates: { x: 56, y: 38 },
+    xpReward: 150,
+    mapCoordinates: { x: 44, y: 40 },
     activities: [
       {
         id: 'b3-1',
         type: ActivityType.READING,
-        question: 'Triple Defense',
-        narrative: "The **Theodosian Walls** were the greatest fortifications ever built. A triple layer of defense: a deep moat, an outer wall, and a massive inner wall with 96 towers.\n\nAttila the Hun turned back at the sight of them. For 1,000 years, they kept the light of civilization burning while Europe slept in darkness.",
-        mascotGuidance: "Let the barbarians come. They will break against stone.",
+        question: 'Impregnable',
+        narrative: "As the barbarians overran the West, Emperor Theodosius II built the greatest fortifications in history: The **Theodosian Walls**. Triple-layered, with a moat and massive towers, they would protect the city for a thousand years.",
+        mascotGuidance: "Let the Huns come. They will break against stone.",
         customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Theodosian_Walls.jpg/800px-Theodosian_Walls.jpg",
-        imageCredit: "Theodosian Walls"
+        imageCredit: "Theodosian Walls (Restored)"
       },
       {
         id: 'b3-2',
+        type: ActivityType.QUIZ,
+        question: "Who famously failed to breach the walls?",
+        options: ["Attila the Hun", "Julius Caesar", "Alexander the Great", "Napoleon"],
+        correctAnswer: "Attila the Hun"
+      },
+      {
+        id: 'b3-3',
         type: ActivityType.SORTING,
-        question: 'Order the Defenses',
+        question: 'Order the Defenses (Out to In)',
         items: ['The Moat', 'Outer Wall', 'Inner Wall', 'The City'],
         correctOrder: ['The Moat', 'Outer Wall', 'Inner Wall', 'The City']
       }
     ]
   },
 
-  // ================= UNIT 1: PERSIA (THE FOUNDING) =================
+  // PERSIA UNIT 1
   {
-    id: 'persia-1',
-    title: 'The Median Yoke',
-    description: 'Rise of Cyrus',
+    id: 'persia-1-1',
+    title: 'The Rising Storm',
+    description: 'Cyrus overthrows the Medes',
     civ: CivType.PERSIA,
+    unitId: 1,
+    unitTitle: "The Founding",
     locked: false,
     completed: false,
     xpReward: 100,
@@ -510,78 +472,141 @@ export const LESSON_DATA: Lesson[] = [
       {
         id: 'p1-1',
         type: ActivityType.READING,
-        question: 'Vassals no More',
-        narrative: "The Persians were originally a small tribe of horsemen, ruled by the powerful Medes. But **Cyrus the Great** united the Persian clans and revolted.\n\nHe didn't just defeat the Medes; he integrated them. He created a dual monarchy where Medes and Persians fought side by side. It was the beginning of the Achaemenid Empire.",
-        mascotGuidance: "Strength comes from unity, not domination.",
+        question: 'Vassals No More',
+        narrative: "The Persians were a humble nomadic tribe, vassals to the powerful Median Empire. But **Cyrus the Great** united the Persian tribes and revolted against his own grandfather, the Median King Astyages. This was not just a rebellion; it was a revolution.",
+        mascotGuidance: "Destiny is not given. It is seized.",
         customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Achaemenid_Soldiers.jpg/800px-Achaemenid_Soldiers.jpg",
-        imageCredit: "Persian Guards"
+        imageCredit: "Persian Guards Frieze"
       },
       {
         id: 'p1-2',
         type: ActivityType.QUIZ,
-        question: "Who did Cyrus overthrow?",
+        question: "Who did the Persians overthrow?",
         options: ["The Greeks", "The Medes", "The Romans", "The Egyptians"],
         correctAnswer: "The Medes"
       }
     ]
   },
   {
-    id: 'persia-2',
-    title: 'Babylon',
-    description: 'Conquest without Fire',
+    id: 'persia-1-2',
+    title: 'The Liberator',
+    description: 'Conquest of Babylon',
     civ: CivType.PERSIA,
+    unitId: 1,
+    unitTitle: "The Founding",
     locked: true,
     completed: false,
-    xpReward: 100,
-    mapCoordinates: { x: 45, y: 50 },
+    xpReward: 120,
+    mapCoordinates: { x: 58, y: 48 },
     activities: [
       {
         id: 'p2-1',
         type: ActivityType.READING,
-        question: 'The Open Gate',
-        narrative: "Babylon was the greatest city on earth. Its walls were impregnable. But its king, Nabonidus, was hated. \n\nIn 539 BC, Cyrus marched to the city. He didn't need siege engines. The priests of Marduk opened the gates for him. He entered not as a conqueror, but as a restorer of order. He freed the Jewish exiles and allowed them to rebuild Jerusalem.",
-        mascotGuidance: "I conquered the world's greatest city without shedding a drop of blood.",
-        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Cyrus_Cylinder_front.jpg/800px-Cyrus_Cylinder_front.jpg",
-        imageCredit: "Cyrus Cylinder"
+        question: 'The Fall of Babylon',
+        narrative: "In 539 BC, Cyrus marched on Babylon, the greatest city on earth. Instead of a siege, he diverted the Euphrates river and marched his troops under the walls. But he did not sack the city. He entered as a liberator.",
+        mascotGuidance: "I come in peace, so long as you kneel.",
+        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Cyrus_Cylinder_front.jpg/640px-Cyrus_Cylinder_front.jpg",
+        imageCredit: "The Cyrus Cylinder"
       },
       {
         id: 'p2-2',
-        type: ActivityType.QUIZ,
-        question: "How did Cyrus enter Babylon?",
-        options: ["By force", "Through a tunnel", "Through open gates", "By starvation"],
-        correctAnswer: "Through open gates"
+        type: ActivityType.DECISION,
+        question: 'The Temple of Marduk',
+        narrative: "The priests of Babylon fear you will destroy their idols, as the Assyrians did. How do you treat their gods?",
+        decisionContext: "Religious tolerance is a new concept in the ancient world.",
+        decisionChoices: [
+          { text: "Destroy the Idols", isCorrect: false, feedback: "The city revolts. You must now rule by fear." },
+          { text: "Respect Marduk", isCorrect: true, feedback: "The priests proclaim you King of the Universe. You rule without bloodshed." }
+        ]
       }
     ]
   },
   {
-    id: 'persia-3',
-    title: 'King of Kings',
-    description: 'Ruling the World',
+    id: 'persia-1-3',
+    title: 'The Royal Road',
+    description: 'Connecting the Empire',
     civ: CivType.PERSIA,
+    unitId: 1,
+    unitTitle: "The Founding",
     locked: true,
     completed: false,
-    xpReward: 120,
-    mapCoordinates: { x: 35, y: 35 },
+    xpReward: 150,
+    mapCoordinates: { x: 62, y: 46 },
     activities: [
       {
         id: 'p3-1',
         type: ActivityType.READING,
-        question: 'Satraps and Roads',
-        narrative: "To rule an empire stretching from India to Greece, the Persians invented administration. They divided the land into provinces ruled by **Satraps** (Governors).\n\nThey built the **Royal Road**, 1,600 miles long. Using a relay of fresh horses, a message could travel from Susa to Sardis in 7 days. Herodotus wrote: *'Neither snow nor rain nor heat stays these couriers.'*",
-        mascotGuidance: "Speed is power.",
-        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Darius_I_the_Great_receiving_homage.jpg/800px-Darius_I_the_Great_receiving_homage.jpg",
-        imageCredit: "Darius the Great"
+        question: 'Eyes and Ears',
+        narrative: "To rule an empire stretching from India to Greece, you need speed. Darius I built the **Royal Road**. A messenger could travel 1,600 miles in 7 days using a relay system of fresh horses. It was the ancient internet.",
+        mascotGuidance: "Neither snow nor rain nor heat nor gloom of night stays these couriers...",
+        scholarNotes: "Herodotus's description of the Persian postal service is the motto of the US Postal Service today."
       },
       {
         id: 'p3-2',
-        type: ActivityType.MATCHING,
-        question: 'Persian Administration',
-        pairs: [
-          { term: 'Satrap', definition: 'Governor' },
-          { term: 'Royal Road', definition: 'Highway' },
-          { term: 'King of Kings', definition: 'Emperor' }
-        ]
+        type: ActivityType.QUIZ,
+        question: "What was a Satrap?",
+        options: ["A Priest", "A Governor", "A Soldier", "A Slave"],
+        correctAnswer: "A Governor"
+      },
+      {
+        id: 'p3-3',
+        type: ActivityType.MAP_CONQUEST,
+        question: 'Trace the Royal Road from Susa to Sardis.',
+        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Achaemenid_Empire_at_its_greatest_extent.png/800px-Achaemenid_Empire_at_its_greatest_extent.png",
+        mapTarget: { x: 45, y: 40, label: "Sardis" },
+        mapQuiz: {
+            question: "What allowed the messengers to travel so fast?",
+            options: ["Magic Carpets", "Relay Stations (Horses)", "Paved Roads only", "Boats"],
+            correctAnswer: "Relay Stations (Horses)"
+        }
       }
     ]
   }
 ];
+
+// Generate the full curriculum (combines hardcoded + skeleton)
+export const generateCurriculum = (): Lesson[] => {
+  const allLessons: Lesson[] = [];
+
+  // Iterate over each Civ
+  Object.entries(UNIT_STRUCTURE).forEach(([civKey, units]) => {
+    const civ = civKey as CivType;
+    
+    units.forEach((unit, unitIdx) => {
+      const unitNum = unitIdx + 1;
+      
+      unit.topics.forEach((topic, topicIdx) => {
+        const lessonNum = topicIdx + 1;
+        const lessonId = `${civ.toLowerCase()}-${unitNum}-${lessonNum}`;
+        
+        // Check if hardcoded exists
+        const hardcoded = HARDCODED_LESSONS.find(l => l.id === lessonId);
+        
+        if (hardcoded) {
+          allLessons.push(hardcoded);
+        } else {
+          // Create Skeleton Lesson
+          allLessons.push({
+            id: lessonId,
+            title: topic,
+            description: `Unit ${unitNum} Lesson`,
+            civ: civ,
+            unitId: unitNum,
+            unitTitle: unit.title,
+            locked: true, // App.tsx handles unlocking logic
+            completed: false,
+            xpReward: 100,
+            mapCoordinates: { x: 50 + (topicIdx * 5), y: 50 + (unitIdx * 5) }, // Dummy coords
+            activities: [],
+            isSkeleton: true,
+            topic: topic
+          });
+        }
+      });
+    });
+  });
+
+  return allLessons;
+};
+
+export const LESSON_DATA = generateCurriculum();

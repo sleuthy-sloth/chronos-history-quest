@@ -1,12 +1,11 @@
 
-
 import { GoogleGenAI, LiveServerMessage, Modality, Type } from "@google/genai";
+import { Lesson, ActivityType, CivType } from "../types";
 
-// Secure API Key access using process.env.API_KEY as per guidelines.
-// The 'define' block in vite.config.ts ensures this is replaced with the string literal at build time.
+// Secure API Key access via process.env
 const getAI = () => new GoogleGenAI({ apiKey: process.env.API_KEY });
 
-// AudioContext Singleton to avoid browser limits
+// AudioContext Singleton
 let sharedAudioContext: AudioContext | null = null;
 const getAudioContext = (sampleRate = 24000) => {
     if (!sharedAudioContext) {
@@ -19,21 +18,25 @@ const getAudioContext = (sampleRate = 24000) => {
 
 // --- Standard Content Generation ---
 
-export const generateLessonContent = async (topic: string, civ: string) => {
+export const generateLessonContent = async (skeletonLesson: Lesson): Promise<Lesson | null> => {
   const ai = getAI();
+  const civName = skeletonLesson.civ;
+  const topic = skeletonLesson.topic;
+  
   const prompt = `
-    Create a historical lesson about "${topic}" for the civilization "${civ}".
-    It should be formatted as a JSON object with a title, description, and an array of 3 activities.
-    Activity 1: Type READING. A dramatic narrative paragraph (max 100 words).
-    Activity 2: Type QUIZ. A multiple choice question with 4 options and 1 correct answer.
-    Activity 3: Type MATCHING. 3 pairs of terms and definitions.
+    You are a historian designing a lesson for a "Hardcore History" style learning app.
+    Topic: "${topic}" for the Civilization: "${civName}".
     
-    Format:
-    {
-      "title": "string",
-      "description": "string",
-      "activities": [ ... ]
-    }
+    Generate a JSON object representing a lesson with EXACTLY 3 activities.
+    
+    Activity 1: Type "READING". A dramatic, narrative paragraph (80-120 words) teaching the core concept. Include 'mascotGuidance' (a short, witty or profound comment from the civ's leader).
+    Activity 2: Type "QUIZ". A multiple choice question with 4 options.
+    Activity 3: Type "SORTING" or "MATCHING". 
+       - If SORTING: Provide 4 items in chronological or logical order.
+       - If MATCHING: Provide 3 pairs of terms and definitions.
+    
+    The JSON structure must match the schema exactly.
+    IMPORTANT: For 'imageKeyword', provide a specific, visual description of a historical artifact or scene suitable for generating an image (e.g. "Roman legionary throwing pilum", "Egyptian workers placing pyramid stone").
   `;
 
   try {
@@ -57,6 +60,9 @@ export const generateLessonContent = async (topic: string, civ: string) => {
                   narrative: { type: Type.STRING },
                   options: { type: Type.ARRAY, items: { type: Type.STRING } },
                   correctAnswer: { type: Type.STRING },
+                  imageKeyword: { type: Type.STRING },
+                  mascotGuidance: { type: Type.STRING },
+                  scholarNotes: { type: Type.STRING },
                   pairs: {
                     type: Type.ARRAY,
                     items: {
@@ -66,7 +72,9 @@ export const generateLessonContent = async (topic: string, civ: string) => {
                         definition: { type: Type.STRING }
                       }
                     }
-                  }
+                  },
+                  items: { type: Type.ARRAY, items: { type: Type.STRING } },
+                  correctOrder: { type: Type.ARRAY, items: { type: Type.STRING } }
                 }
               }
             }
@@ -74,7 +82,32 @@ export const generateLessonContent = async (topic: string, civ: string) => {
         }
       }
     });
-    return JSON.parse(response.text || "{}");
+
+    const data = JSON.parse(response.text || "{}");
+    
+    // Enrich with generated images and IDs
+    const enrichedActivities = data.activities.map((act: any, idx: number) => {
+        const keyword = act.imageKeyword || topic || "history";
+        // Use Pollinations for reliable AI art based on the prompt
+        const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(keyword + ", historical, cinematic lighting, 8k, museum style")}?width=800&height=600&nologo=true&seed=${Math.random()}`;
+        
+        return {
+            ...act,
+            id: `${skeletonLesson.id}-${idx}`,
+            customImage: imageUrl,
+            // Ensure type is valid enum and Uppercase
+            type: act.type ? act.type.toUpperCase() as ActivityType : ActivityType.READING
+        };
+    });
+
+    return {
+        ...skeletonLesson,
+        title: data.title || skeletonLesson.title,
+        description: data.description || skeletonLesson.description,
+        activities: enrichedActivities,
+        isSkeleton: false // Mark as fully generated
+    };
+
   } catch (error) {
     console.error("Gemini generation failed", error);
     return null;
@@ -82,7 +115,6 @@ export const generateLessonContent = async (topic: string, civ: string) => {
 };
 
 // --- TTS Service ---
-
 export const playTTS = async (text: string, voiceName: string = 'Kore') => {
   const ai = getAI();
   try {
@@ -109,10 +141,9 @@ export const playTTS = async (text: string, voiceName: string = 'Kore') => {
     source.buffer = audioBuffer;
     source.connect(audioCtx.destination);
     source.start();
-    return source; // Return source to allow stopping
+    return source;
   } catch (e) {
     console.error("TTS Failed, falling back", e);
-    // Fallback
     const u = new SpeechSynthesisUtterance(text);
     window.speechSynthesis.speak(u);
     return null;
@@ -120,37 +151,29 @@ export const playTTS = async (text: string, voiceName: string = 'Kore') => {
 };
 
 // --- Live API (Real-time Tutor) ---
-
 export const connectLiveTutor = async (
   onAudioData: (buffer: AudioBuffer) => void,
   onClose: () => void
 ) => {
   const ai = getAI();
   const inputAudioContext = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 16000 });
-  
-  // Use shared context for playback to be efficient
   const decodingAudioContext = getAudioContext(24000);
-  
   const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-  
   let currentSession: any = null;
 
   const sessionPromise = ai.live.connect({
     model: 'gemini-2.5-flash-native-audio-preview-09-2025',
     config: {
       responseModalities: [Modality.AUDIO],
-      systemInstruction: "You are a wise, Socratic history tutor named Chronos. You are teaching a student about historical events. Be dramatic, authoritative, but encouraging. Keep responses concise.",
+      systemInstruction: "You are a wise, Socratic history tutor named Chronos. Be dramatic, authoritative, but encouraging.",
       speechConfig: {
         voiceConfig: { prebuiltVoiceConfig: { voiceName: 'Fenrir' } }
       }
     },
     callbacks: {
       onopen: () => {
-        console.log("Live Tutor Connected");
-        // Stream audio from the microphone to the model.
         const source = inputAudioContext.createMediaStreamSource(stream);
         const scriptProcessor = inputAudioContext.createScriptProcessor(4096, 1, 1);
-        
         scriptProcessor.onaudioprocess = (e) => {
           const inputData = e.inputBuffer.getChannelData(0);
           const pcmBlob = createBlob(inputData);
@@ -159,7 +182,6 @@ export const connectLiveTutor = async (
             session.sendRealtimeInput({ media: pcmBlob });
           });
         };
-        
         source.connect(scriptProcessor);
         scriptProcessor.connect(inputAudioContext.destination);
       },
@@ -170,16 +192,8 @@ export const connectLiveTutor = async (
            onAudioData(audioBuffer);
         }
       },
-      onclose: () => {
-        console.log("Live Tutor Disconnected");
-        cleanup();
-        onClose();
-      },
-      onerror: (e) => {
-        console.error("Live Tutor Error", e);
-        cleanup();
-        onClose();
-      }
+      onclose: () => { cleanup(); onClose(); },
+      onerror: (e) => { console.error(e); cleanup(); onClose(); }
     }
   });
 
@@ -187,72 +201,37 @@ export const connectLiveTutor = async (
      try {
          stream.getTracks().forEach(t => t.stop());
          inputAudioContext.close();
-         // Don't close decoding context as it might be shared, just suspend if needed or leave active
-     } catch (e) {
-         console.warn("Cleanup error", e);
-     }
+     } catch (e) { }
   };
 
-  // Return a controller
-  return {
-      disconnect: () => {
-          cleanup();
-          // Attempt to close session if SDK exposes it
-          // sessionPromise.then(s => s.close && s.close()); 
-          // Since SDK close method might vary, cutting the stream is the effective disconnect.
-      }
-  };
+  return { disconnect: () => cleanup() };
 };
 
-
 // --- Audio Utils ---
-
 function createBlob(data: Float32Array): { data: string; mimeType: string } {
   const l = data.length;
   const int16 = new Int16Array(l);
-  for (let i = 0; i < l; i++) {
-    int16[i] = data[i] * 32768;
-  }
-  return {
-    data: encode(new Uint8Array(int16.buffer)),
-    mimeType: 'audio/pcm;rate=16000',
-  };
+  for (let i = 0; i < l; i++) int16[i] = data[i] * 32768;
+  return { data: encode(new Uint8Array(int16.buffer)), mimeType: 'audio/pcm;rate=16000' };
 }
-
 function encode(bytes: Uint8Array) {
   let binary = '';
   const len = bytes.byteLength;
-  for (let i = 0; i < len; i++) {
-    binary += String.fromCharCode(bytes[i]);
-  }
+  for (let i = 0; i < len; i++) binary += String.fromCharCode(bytes[i]);
   return btoa(binary);
 }
-
 function decode(base64: string) {
   const binaryString = atob(base64);
   const len = binaryString.length;
   const bytes = new Uint8Array(len);
-  for (let i = 0; i < len; i++) {
-    bytes[i] = binaryString.charCodeAt(i);
-  }
+  for (let i = 0; i < len; i++) bytes[i] = binaryString.charCodeAt(i);
   return bytes;
 }
-
-async function decodeAudioData(
-  data: Uint8Array,
-  ctx: AudioContext,
-): Promise<AudioBuffer> {
-  const sampleRate = 24000;
-  const numChannels = 1;
+async function decodeAudioData(data: Uint8Array, ctx: AudioContext): Promise<AudioBuffer> {
   const dataInt16 = new Int16Array(data.buffer);
-  const frameCount = dataInt16.length / numChannels;
-  const buffer = ctx.createBuffer(numChannels, frameCount, sampleRate);
-
-  for (let channel = 0; channel < numChannels; channel++) {
-    const channelData = buffer.getChannelData(channel);
-    for (let i = 0; i < frameCount; i++) {
-      channelData[i] = dataInt16[i * numChannels + channel] / 32768.0;
-    }
-  }
+  const frameCount = dataInt16.length;
+  const buffer = ctx.createBuffer(1, frameCount, 24000);
+  const channelData = buffer.getChannelData(0);
+  for (let i = 0; i < frameCount; i++) channelData[i] = dataInt16[i] / 32768.0;
   return buffer;
 }

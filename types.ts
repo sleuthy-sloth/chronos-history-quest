@@ -22,51 +22,46 @@ export interface Activity {
   id: string;
   type: ActivityType;
   question: string;
-  narrative?: string; // For reading cards
-  options?: string[]; // For quiz
+  narrative?: string;
+  options?: string[];
   correctAnswer?: string | string[];
-  pairs?: { term: string; definition: string }[]; // For matching
-  items?: string[]; // For sorting (scrambled)
-  correctOrder?: string[]; // For sorting (correct sequence)
-  mapTarget?: { x: number; y: number; label: string }; // For map (percentages)
+  pairs?: { term: string; definition: string }[];
+  items?: string[];
+  correctOrder?: string[];
+  mapTarget?: { x: number; y: number; label: string };
   imageKeyword?: string;
-  customImage?: string; // Direct URL override
-  imageCredit?: string; // Source attribution
-  backgroundInfo?: string; // Pop up after answer
-  scholarNotes?: string; // Optional deep dive context
-  mascotGuidance?: string; // Specific hint/flavor text from the mascot
+  customImage?: string;
+  imageCredit?: string;
+  backgroundInfo?: string;
+  scholarNotes?: string;
+  mascotGuidance?: string;
 
-  // Map Quiz (Follow up question after finding location)
   mapQuiz?: {
     question: string;
     options: string[];
     correctAnswer: string;
   };
 
-  // Cipher Game Fields
-  cipherSymbols?: string[]; // E.g. ["𓀀", "𓁈"]
-  cipherCorrect?: string[]; // Correct sequence of words
-  cipherOptions?: string[]; // Pool of words to choose from
+  cipherSymbols?: string[];
+  cipherCorrect?: string[];
+  cipherOptions?: string[];
 
-  // Decision/Roleplay Game Fields
-  decisionContext?: string; // Scenario description
+  decisionContext?: string;
   decisionChoices?: {
     text: string;
     isCorrect: boolean;
-    feedback: string; // Outcome text
+    feedback: string;
   }[];
 
-  // Artifact Exploration Fields
   artifactHotspots?: {
     id: string;
-    x: number; // Percentage
-    y: number; // Percentage
+    x: number;
+    y: number;
     label: string;
     description: string;
   }[];
 
-  // Primary Source Fields
-  sourceText?: string; // The actual historical text
+  sourceText?: string;
   sourceAuthor?: string;
   sourceDate?: string;
 }
@@ -80,7 +75,13 @@ export interface Lesson {
   xpReward: number;
   locked: boolean;
   completed: boolean;
-  mapCoordinates?: { x: number; y: number }; // Percentage 0-100 on the Civ Map
+  mapCoordinates?: { x: number; y: number };
+  
+  // New fields for AI Generation Framework
+  isSkeleton?: boolean; // If true, content needs to be generated on the fly
+  topic?: string;       // The prompt for the AI to generate content
+  unitId?: number;      // For grouping into the 10-unit structure
+  unitTitle?: string;
 }
 
 export interface UserSettings {
@@ -103,8 +104,8 @@ export interface Avatar {
   url: string;
   rarity: 'common' | 'rare' | 'epic' | 'legendary';
   description: string;
-  unlockCondition?: string; // Text description
-  cost?: number; // Gems
+  unlockCondition?: string;
+  cost?: number;
   requiredLevel?: number;
 }
 
@@ -114,11 +115,10 @@ export interface UserState {
   email: string | null;
   photoURL: string | null;
   
-  // Progression Fields
   xp: number;
   gems: number;
-  streak: number; // Consecutive days logged in
-  lastLoginDate: string; // ISO Date string
+  streak: number;
+  lastLoginDate: string;
   level: number;
   
   completedLessons: string[];
@@ -128,34 +128,22 @@ export interface UserState {
   leagueId?: string;
   settings: UserSettings;
 
-  // Profile & Social
   avatarId: string;
   unlockedAvatars: string[];
-  friends: string[]; // List of UIDs
+  friends: string[];
+
+  // Cache for AI generated lessons so we don't regenerate them
+  generatedLessons: Record<string, Lesson>; 
 }
 
 export interface LeagueMember {
   uid: string;
   displayName: string;
   photoURL: string;
-  xp: number; // Weekly XP
+  xp: number;
   rank: number;
   civ: CivType;
   isBot?: boolean;
-}
-
-export interface ChatMessage {
-  role: 'user' | 'model';
-  text: string;
-}
-
-export enum LeagueTier {
-  BRONZE = 'BRONZE',
-  SILVER = 'SILVER',
-  GOLD = 'GOLD',
-  PLATINUM = 'PLATINUM',
-  DIAMOND = 'DIAMOND',
-  CHRONOS = 'CHRONOS'
 }
 
 export interface MascotIntel {

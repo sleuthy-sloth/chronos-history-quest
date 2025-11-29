@@ -1,81 +1,56 @@
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Chronos - History Quest</title>
+    <title>Chronos - Tactical History</title>
     <link rel="icon" type="image/png" href="https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Hourglass_modern.svg/64px-Hourglass_modern.svg.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <script>
       tailwind.config = {
         darkMode: 'class',
         theme: {
           extend: {
             fontFamily: {
-              sans: ['Nunito', 'sans-serif'],
-              duo: ['Nunito', 'sans-serif'],
               serif: ['Merriweather', 'serif'],
+              mono: ['JetBrains Mono', 'monospace'],
+            },
+            borderRadius: {
+              'DEFAULT': '0.25rem', // Default to slight rounding
+              'sm': '0.125rem',     // Sharp tactical look
+              'xl': '0.5rem',       // Reduced from standard XL
+              '2xl': '0.75rem',     // Reduced
+              '3xl': '1rem'         // Reduced
             },
             colors: {
-              duo: {
-                green: '#58cc02',
-                'green-dark': '#46a302',
-                blue: '#1cb0f6',
-                'blue-dark': '#1899d6',
-                red: '#ff4b4b',
-                'red-dark': '#ea2b2b',
-                yellow: '#ffc800',
-                'yellow-dark': '#e5b400',
-                gray: '#e5e5e5',
-                'gray-dark': '#cecece',
-                slate: '#131f24', // Duo Dark Mode bg
+              stone: {
+                50: '#fafaf9',
+                100: '#f5f5f4',
+                200: '#e7e5e4',
+                300: '#d6d3d1',
+                400: '#a8a29e',
+                500: '#78716c',
+                600: '#57534e',
+                700: '#44403c',
+                800: '#292524',
+                900: '#1c1917',
+                950: '#0c0a09',
               },
-              rome: {
-                primary: '#ef4444', // Red-500
-                dark: '#b91c1c',     // Red-700
-              },
-              egypt: {
-                primary: '#eab308', // Yellow-500
-                dark: '#a16207',    // Yellow-700
-              },
-              byzantium: {
-                primary: '#a855f7', // Purple-500
-                dark: '#7e22ce',    // Purple-700
-              },
-              persia: {
-                primary: '#14b8a6', // Teal-500
-                dark: '#0f766e',    // Teal-700
-              }
-            },
-            boxShadow: {
-              '3d': '0 4px 0 0 rgba(0,0,0,0.2)',
-              '3d-active': '0 0 0 0 rgba(0,0,0,0.2)',
-            },
-            keyframes: {
-              shake: {
-                '0%, 100%': { transform: 'translateX(0)' },
-                '20%': { transform: 'translateX(-8px)' },
-                '40%': { transform: 'translateX(8px)' },
-                '60%': { transform: 'translateX(-4px)' },
-                '80%': { transform: 'translateX(4px)' },
-              },
-              pop: {
-                '0%': { transform: 'scale(0.8)' },
-                '40%': { transform: 'scale(1.1)' },
-                '100%': { transform: 'scale(1)' },
-              },
-              bounce: {
-                '0%, 100%': { transform: 'translateY(0)' },
-                '50%': { transform: 'translateY(-10px)' },
-              }
             },
             animation: {
-              'shake': 'shake 0.5s cubic-bezier(.36,.07,.19,.97) both',
-              'pop': 'pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
-              'bounce-slow': 'bounce 2s infinite',
+              'spin-slow': 'spin 3s linear infinite',
+              'bounce-slow': 'bounce 3s infinite',
+              'fade-in-up': 'fadeInUp 0.5s ease-out',
+            },
+            keyframes: {
+              fadeInUp: {
+                '0%': { opacity: '0', transform: 'translateY(10px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
+              }
             }
           }
         }
@@ -83,34 +58,38 @@
     </script>
     <style>
       body {
-        background-color: #ffffff; /* Default Light Mode */
-        color: #3c3c3c;
+        background-color: #f5f5f4;
+        color: #292524;
       }
       .dark body {
-        background-color: #131f24; /* Duo Dark Mode */
-        color: #ffffff;
+        background-color: #0c0a09;
+        color: #e7e5e4;
       }
-      
-      /* Duo-style Button Base */
-      .btn-duo {
-        transition: all 0.1s;
-        border-bottom-width: 4px;
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
       }
-      .btn-duo:active {
-        border-bottom-width: 0px;
-        transform: translateY(4px);
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #a8a29e;
+        border-radius: 2px;
+      }
+      .dark ::-webkit-scrollbar-thumb {
+        background: #44403c;
       }
     </style>
-  <script type="importmap">
+<script type="importmap">
 {
   "imports": {
     "react": "https://aistudiocdn.com/react@^19.2.0",
-    "react/": "https://aistudiocdn.com/react@^19.2.0/",
     "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
     "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
     "firebase/": "https://aistudiocdn.com/firebase@^12.6.0/",
-    "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.1.1",
-    "vite": "https://aistudiocdn.com/vite@^7.2.4"
+    "vite": "https://aistudiocdn.com/vite@^7.2.4",
+    "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.1.1"
   }
 }
 </script>
