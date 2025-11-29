@@ -1,13 +1,11 @@
+
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/auth';
 import 'firebase/compat/firestore';
 import { UserState, CivType, LeagueMember, Avatar } from '../types';
 import { INITIAL_USER_STATE, LEAGUE_BOT_POOL, AVATARS } from '../constants';
 
-// --- Configuration ---
-// Access API Key using process.env.API_KEY
-// The 'define' block in vite.config.ts ensures this is replaced with the string literal at build time.
-const apiKey = process.env.API_KEY || '';
+const apiKey = import.meta.env.VITE_API_KEY;
 
 const firebaseConfig = {
   apiKey: apiKey,
@@ -24,7 +22,6 @@ let auth: firebase.auth.Auth;
 let db: firebase.firestore.Firestore;
 
 if (isFirebaseConfigured) {
-  // Check if apps are initialized to prevent re-initialization
   if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
   }
@@ -32,9 +29,6 @@ if (isFirebaseConfigured) {
   db = firebase.firestore();
 }
 
-// --- Auth Services ---
-
-// Helper to get local guest data for merging
 const getLocalGuestUser = (): UserState | null => {
     const local = localStorage.getItem('chronos_user');
     if (local) {
@@ -47,25 +41,19 @@ const getLocalGuestUser = (): UserState | null => {
 };
 
 export const signInWithGoogle = async (): Promise<UserState | null> => {
-  if (!isFirebaseConfigured) {
-    console.warn("Firebase not configured. Using Guest Mode.");
-    return createGuestUser();
-  }
-
+  if (!isFirebaseConfigured) return createGuestUser();
   try {
     const provider = new firebase.auth.GoogleAuthProvider();
     const result = await auth.signInWithPopup(provider);
     if (result.user) {
-      // Check for guest data to merge
       const guestData = getLocalGuestUser();
       return await fetchOrCreateUserProfile(result.user, guestData);
     }
     return null;
   } catch (error: any) {
     console.error("Sign in failed", error);
-    
     if (error.code === 'auth/unauthorized-domain' || error.code === 'auth/operation-not-allowed') {
-        alert("Domain not authorized in Firebase Console. Falling back to Guest Mode for testing.");
+        alert("Domain not authorized. Falling back to Guest Mode.");
         return createGuestUser();
     }
     return null;
@@ -74,12 +62,10 @@ export const signInWithGoogle = async (): Promise<UserState | null> => {
 
 export const registerWithEmailAndPassword = async (email: string, pass: string, name: string): Promise<UserState> => {
     if (!isFirebaseConfigured) throw new Error("Firebase not configured");
-    
     const result = await auth.createUserWithEmailAndPassword(email, pass);
     if (result.user) {
         await result.user.updateProfile({ displayName: name });
         const guestData = getLocalGuestUser();
-        // Force the display name onto the profile object we are about to create
         const finalGuestData = guestData ? { ...guestData, displayName: name } : null;
         return await fetchOrCreateUserProfile(result.user, finalGuestData);
     }
@@ -88,7 +74,6 @@ export const registerWithEmailAndPassword = async (email: string, pass: string, 
 
 export const logInWithEmailAndPassword = async (email: string, pass: string): Promise<UserState> => {
     if (!isFirebaseConfigured) throw new Error("Firebase not configured");
-
     const result = await auth.signInWithEmailAndPassword(email, pass);
     if (result.user) {
         const guestData = getLocalGuestUser();
@@ -98,10 +83,8 @@ export const logInWithEmailAndPassword = async (email: string, pass: string): Pr
 };
 
 export const createGuestUser = (): UserState => {
-    // Check if one already exists to prevent overwriting on reload
     const existing = getLocalGuestUser();
     if (existing) return existing;
-
     const mockUser: UserState = {
       ...INITIAL_USER_STATE,
       uid: 'guest-' + Date.now(),
@@ -113,63 +96,40 @@ export const createGuestUser = (): UserState => {
 }
 
 export const signOut = async () => {
-  if (isFirebaseConfigured) {
-    await auth.signOut();
-  }
+  if (isFirebaseConfigured) await auth.signOut();
   localStorage.removeItem('chronos_user');
 };
 
 export const deleteAccount = async (user: UserState) => {
   if (isFirebaseConfigured && user.uid && !user.uid.startsWith('guest-')) {
-    try {
-      await db.collection('users').doc(user.uid).delete();
-      const currentUser = auth.currentUser;
-      if (currentUser) {
-        await currentUser.delete();
-      }
-    } catch (e) {
-      console.error("Error deleting account", e);
-      throw e;
-    }
+    await db.collection('users').doc(user.uid).delete();
+    const currentUser = auth.currentUser;
+    if (currentUser) await currentUser.delete();
   }
   localStorage.removeItem('chronos_user');
 };
 
 export const subscribeToAuthChanges = (callback: (user: UserState | null) => void) => {
-  // Check local storage first
   const local = localStorage.getItem('chronos_user');
   if (local) {
       const parsed = JSON.parse(local);
-      if (parsed.uid.startsWith('guest-')) {
-          callback(parsed);
-          // We continue to listen to firebase, but primarily we have a user
-      }
+      if (parsed.uid.startsWith('guest-')) callback(parsed);
   }
-
   if (!isFirebaseConfigured) {
     callback(local ? JSON.parse(local) : null);
     return () => {};
   }
-
   return auth.onAuthStateChanged(async (firebaseUser) => {
     if (firebaseUser) {
-      // Note: We don't pass guestData here because this is an automatic re-auth (page refresh).
-      // Merging usually happens during explicit sign-in/sign-up actions.
       const userProfile = await fetchOrCreateUserProfile(firebaseUser, null);
       callback(userProfile);
     } else {
-      // If logged out from Firebase, check if we should fall back to guest
       const local = localStorage.getItem('chronos_user');
-      if (local && JSON.parse(local).uid.startsWith('guest-')) {
-          callback(JSON.parse(local));
-      } else {
-          callback(null);
-      }
+      if (local && JSON.parse(local).uid.startsWith('guest-')) callback(JSON.parse(local));
+      else callback(null);
     }
   });
 };
-
-// --- Data Services ---
 
 const fetchOrCreateUserProfile = async (firebaseUser: firebase.User, guestData: UserState | null): Promise<UserState> => {
   const userRef = db.collection('users').doc(firebaseUser.uid);
@@ -177,48 +137,33 @@ const fetchOrCreateUserProfile = async (firebaseUser: firebase.User, guestData: 
   const now = new Date();
 
   if (snap.exists) {
-    // Existing Cloud User
     const userData = snap.data() as UserState;
-    
-    // Streak Logic
     const lastLogin = new Date(userData.lastLoginDate);
     const today = new Date();
     const lastLoginMidnight = new Date(lastLogin.getFullYear(), lastLogin.getMonth(), lastLogin.getDate());
     const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
     const oneDay = 1000 * 60 * 60 * 24;
     const diffDays = Math.round(Math.abs((todayMidnight.getTime() - lastLoginMidnight.getTime()) / oneDay));
-    
     let newStreak = userData.streak;
     if (diffDays === 1) newStreak += 1;
     else if (diffDays > 1) newStreak = 1;
-    
-    const updates = {
-        lastLoginDate: now.toISOString(),
-        streak: newStreak
-    };
-    
+    const updates = { lastLoginDate: now.toISOString(), streak: newStreak };
     await userRef.update(updates);
     const finalUser = { ...userData, ...updates };
-    saveUserLocally(finalUser); // Sync cloud to local
+    saveUserLocally(finalUser);
     return finalUser;
-
   } else {
-    // New Cloud User - Opportunity to Merge Guest Data
     let newUser: UserState;
-
     if (guestData) {
-        // --- TRANSFER PROGRESS ---
-        console.log("Transferring Guest Progress to Cloud...");
         newUser = {
             ...guestData,
-            uid: firebaseUser.uid, // Vital: Switch to real UID
+            uid: firebaseUser.uid,
             email: firebaseUser.email,
             displayName: guestData.displayName !== 'Guest Explorer' ? guestData.displayName : (firebaseUser.displayName || 'Traveler'),
             photoURL: firebaseUser.photoURL || guestData.photoURL,
             lastLoginDate: now.toISOString()
         };
     } else {
-        // Fresh Start
         newUser = {
             ...INITIAL_USER_STATE,
             uid: firebaseUser.uid,
@@ -233,7 +178,6 @@ const fetchOrCreateUserProfile = async (firebaseUser: firebase.User, guestData: 
             friends: []
         };
     }
-
     await userRef.set(newUser);
     saveUserLocally(newUser);
     return newUser;
@@ -242,17 +186,11 @@ const fetchOrCreateUserProfile = async (firebaseUser: firebase.User, guestData: 
 
 export const updateUserProgress = async (user: UserState, updates: Partial<UserState>) => {
   const updatedUser = { ...user, ...updates };
-  
-  // Only sync to cloud if not guest
   if (isFirebaseConfigured && user.uid && !user.uid.startsWith('guest-')) {
     try {
-        const userRef = db.collection('users').doc(user.uid);
-        await userRef.update(updates);
-    } catch (e) {
-        console.error("Failed to sync progress to cloud", e);
-    }
+        await db.collection('users').doc(user.uid).update(updates);
+    } catch (e) { console.error("Sync error", e); }
   }
-  
   saveUserLocally(updatedUser);
   return updatedUser;
 };
@@ -261,16 +199,12 @@ const saveUserLocally = (user: UserState) => {
   localStorage.setItem('chronos_user', JSON.stringify(user));
 };
 
-// --- Social & Avatar Services ---
-
 export const getFriendDetails = async (friendUids: string[]): Promise<LeagueMember[]> => {
     if (!isFirebaseConfigured || friendUids.length === 0) return [];
-    
     try {
         const chunks = friendUids.slice(0, 10);
         const q = db.collection('users').where(firebase.firestore.FieldPath.documentId(), 'in', chunks);
         const snap = await q.get();
-        
         return snap.docs.map(doc => {
             const d = doc.data() as UserState;
             const avatar = AVATARS.find(a => a.id === d.avatarId);
@@ -283,60 +217,45 @@ export const getFriendDetails = async (friendUids: string[]): Promise<LeagueMemb
                 civ: d.currentCiv
             };
         });
-    } catch (e) {
-        console.error("Error fetching friends", e);
-        return [];
-    }
+    } catch (e) { return []; }
 };
 
 export const addFriend = async (currentUser: UserState, friendUid: string): Promise<UserState> => {
     if (!isFirebaseConfigured) return currentUser;
     if (currentUser.friends.includes(friendUid)) return currentUser;
-
     const friendDoc = await db.collection('users').doc(friendUid).get();
     if (!friendDoc.exists) throw new Error("User not found");
-
     const newFriends = [...currentUser.friends, friendUid];
     return updateUserProgress(currentUser, { friends: newFriends });
 };
 
-// --- League Services ---
-
-// Persistent Bot Storage
 const getCachedBots = (count: number): LeagueMember[] => {
-    const key = 'chronos_league_bots';
+    const key = 'chronos_league_bots_v2';
     const cached = localStorage.getItem(key);
     const now = Date.now();
     const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
-
     if (cached) {
         try {
             const { timestamp, bots } = JSON.parse(cached);
             if (now - timestamp < TWENTY_FOUR_HOURS && bots.length >= count) {
                 return bots.slice(0, count);
             }
-        } catch (e) {
-            console.error("Error parsing cached bots", e);
-        }
+        } catch (e) {}
     }
-
-    const newBots = generateSmartBots(30); // Generate a generous pool
+    const newBots = generateSmartBots(30);
     localStorage.setItem(key, JSON.stringify({ timestamp: now, bots: newBots }));
     return newBots.slice(0, count);
 };
 
 export const getLeagueLeaderboard = async (): Promise<LeagueMember[]> => {
   let realUsers: LeagueMember[] = [];
-
   if (isFirebaseConfigured) {
     try {
       const usersRef = db.collection('users');
       const querySnapshot = await usersRef.orderBy('xp', 'desc').limit(10).get();
-      
       querySnapshot.forEach((doc) => {
         const u = doc.data() as UserState;
         const avatar = AVATARS.find(a => a.id === u.avatarId);
-        
         realUsers.push({
           uid: u.uid,
           displayName: u.displayName,
@@ -347,36 +266,42 @@ export const getLeagueLeaderboard = async (): Promise<LeagueMember[]> => {
           isBot: false
         });
       });
-    } catch (e) {
-      console.error("Error fetching leaderboard", e);
-    }
+    } catch (e) { console.error("Error fetching leaderboard", e); }
   }
 
   const totalSlots = 30;
   const neededBots = Math.max(0, totalSlots - realUsers.length);
-  
   if (neededBots > 0) {
     const bots = getCachedBots(neededBots);
     realUsers = [...realUsers, ...bots];
   }
-
   return realUsers.sort((a, b) => b.xp - a.xp).map((m, i) => ({ ...m, rank: i + 1 }));
 };
 
 const generateSmartBots = (count: number): LeagueMember[] => {
   const bots: LeagueMember[] = [];
   const civs = Object.values(CivType);
-  const dayOfWeek = new Date().getDay() || 7; 
-  const baseWeekXp = 500 * dayOfWeek; 
+  // 0 = Sunday. We want league to end Sunday night, so day 0 is actually Day 7 effectively.
+  // 1 = Mon (Day 1), 6 = Sat (Day 6).
+  let dayOfWeek = new Date().getDay();
+  if (dayOfWeek === 0) dayOfWeek = 7; 
+  
+  // Realistic XP: ~100-200 XP per day for an active user.
+  // We add some variance so not all bots are the same.
+  const baseDailyXp = 150; 
 
   for (let i = 0; i < count; i++) {
     const randomCiv = civs[Math.floor(Math.random() * civs.length)];
     const names = LEAGUE_BOT_POOL[randomCiv];
     const name = names[Math.floor(Math.random() * names.length)] + `_${Math.floor(Math.random() * 100)}`;
-    const variance = (Math.random() * 0.6) + 0.7; 
-    const botXp = Math.floor(baseWeekXp * variance);
+    
+    // Variance: Some bots are slackers (0.5), some are grinders (1.5)
+    const skillMultiplier = (Math.random() * 1.0) + 0.5; 
+    
+    // Bot XP = DaysPassed * DailyRate * Skill
+    const botXp = Math.floor(dayOfWeek * baseDailyXp * skillMultiplier);
+    
     const randomAvatar = AVATARS[Math.floor(Math.random() * AVATARS.length)];
-
     bots.push({
       uid: `bot-${i}-${Date.now()}`,
       displayName: name,

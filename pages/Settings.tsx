@@ -13,22 +13,17 @@ const Settings: React.FC<Props> = ({ user, onUpdateUser }) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isEditingName, setIsEditingName] = useState(false);
   const [editNameValue, setEditNameValue] = useState(user.displayName);
-
   const theme = CIV_THEMES[user.currentCiv];
 
   const handleUpdateSetting = (key: string, value: any) => {
     const updatedUser = {
         ...user,
-        settings: {
-            ...user.settings,
-            [key]: value
-        }
+        settings: { ...user.settings, [key]: value }
     };
     onUpdateUser(updatedUser);
     updateUserProgress(user, { settings: updatedUser.settings });
 
     if (key === 'sfxVolume' && value > 0) {
-        // Play a test ping to give audio feedback
         const audio = new Audio('https://codeskulptor-demos.commondatastorage.googleapis.com/pang/pop.mp3');
         audio.volume = value;
         audio.play().catch(()=>{});
@@ -46,216 +41,104 @@ const Settings: React.FC<Props> = ({ user, onUpdateUser }) => {
   };
 
   const handleDelete = async () => {
-    if (confirm("Are you absolutely sure? This will delete all your progress, history, and gems. This action cannot be undone.")) {
+    if (confirm("Are you sure? This will delete your account permanently.")) {
         setIsDeleting(true);
         try {
             await deleteAccount(user);
             window.location.reload();
         } catch (e) {
-            alert("Error deleting account. You may need to sign in again to verify identity.");
+            alert("Error deleting account. Please re-login and try again.");
             setIsDeleting(false);
         }
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 p-6 md:p-12 pb-32 flex flex-col items-center relative overflow-hidden">
-      {/* Dynamic Background */}
-      <div className={`absolute inset-0 bg-gradient-to-b ${theme.gradient} opacity-20 pointer-events-none`} />
-      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-10 pointer-events-none" />
-
-      <div className="w-full max-w-2xl animate-fade-in-up space-y-8 relative z-10">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-6 md:p-12 pb-32 flex flex-col items-center">
+      <div className="w-full max-w-2xl space-y-6 animate-fade-in-up">
         
-        <header className="text-center mb-12">
-            <h1 className="font-serif text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-b from-amber-200 to-amber-600 drop-shadow-md tracking-wider mb-2">
-                SYSTEM
-            </h1>
-            <div className="h-px w-24 bg-gradient-to-r from-transparent via-amber-500/50 to-transparent mx-auto" />
-            <p className="text-slate-400 text-xs uppercase tracking-[0.3em] mt-4 font-bold">Chronos Protocol Config</p>
-        </header>
+        <h1 className="text-3xl font-extrabold text-slate-800 dark:text-white mb-8">Settings</h1>
 
-        {/* Account Profile Card */}
-        <section className="bg-slate-900/50 backdrop-blur-md rounded-3xl p-1 border border-white/10 shadow-2xl overflow-hidden group">
-            <div className="absolute inset-0 bg-gradient-to-r from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+        {/* Account Section */}
+        <section className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-sm border-2 border-slate-200 dark:border-slate-800">
+            <h2 className="text-lg font-bold text-slate-400 uppercase tracking-wider mb-6">Account</h2>
             
-            <div className="bg-slate-950/50 rounded-[22px] p-6 md:p-8">
-                <div className="flex flex-col md:flex-row items-center gap-8">
-                    {/* Avatar */}
-                    <div className="relative">
-                         <div className="w-24 h-24 rounded-full p-[2px] bg-gradient-to-br from-amber-500 to-transparent">
-                            <div className="w-full h-full rounded-full overflow-hidden bg-slate-800">
-                                {user.photoURL ? (
-                                    <img src={user.photoURL} alt="User" className="w-full h-full object-cover" />
-                                ) : (
-                                    <div className="w-full h-full flex items-center justify-center text-4xl">👤</div>
-                                )}
-                            </div>
-                         </div>
-                         <button className="absolute bottom-0 right-0 bg-slate-800 text-white p-1.5 rounded-full border border-slate-600 hover:bg-amber-600 transition-colors shadow-lg">
-                             <span className="text-xs">📷</span>
-                         </button>
-                    </div>
-                    
-                    {/* Details */}
-                    <div className="flex-1 text-center md:text-left w-full">
-                        <div className="flex items-center justify-center md:justify-start gap-2 mb-1">
-                            <span className="text-[10px] font-bold uppercase text-amber-500 tracking-widest border border-amber-500/20 px-2 py-0.5 rounded">
-                                Agent ID: {user.uid.slice(0,6)}...
-                            </span>
+            <div className="flex items-center gap-6">
+                 <div className="w-20 h-20 rounded-full bg-gray-200 overflow-hidden border-2 border-slate-100 dark:border-slate-700">
+                     {user.photoURL ? (
+                         <img src={user.photoURL} className="w-full h-full object-cover" />
+                     ) : (
+                         <div className="w-full h-full flex items-center justify-center text-3xl">👤</div>
+                     )}
+                 </div>
+                 
+                 <div className="flex-1">
+                     {isEditingName ? (
+                        <div className="flex gap-2">
+                             <input 
+                                value={editNameValue}
+                                onChange={(e) => setEditNameValue(e.target.value)}
+                                className="border-2 border-slate-300 rounded-xl px-3 py-2 font-bold text-slate-800 w-full"
+                             />
+                             <button onClick={handleSaveName} className="bg-green-500 text-white px-4 rounded-xl font-bold">Save</button>
                         </div>
-
-                        {isEditingName ? (
-                            <div className="flex items-center gap-2 mt-2 animate-fade-in-up">
-                                <input 
-                                    type="text" 
-                                    value={editNameValue}
-                                    onChange={(e) => setEditNameValue(e.target.value)}
-                                    className="bg-slate-800 border border-slate-600 rounded-lg px-4 py-2 text-white font-serif text-lg w-full focus:outline-none focus:border-amber-500 shadow-inner"
-                                    autoFocus
-                                />
-                                <button 
-                                    onClick={handleSaveName}
-                                    className="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded-lg font-bold text-sm shadow-lg transition-all active:scale-95"
-                                >
-                                    Save
-                                </button>
-                            </div>
-                        ) : (
-                            <div className="group/edit relative inline-block">
-                                <h3 className="font-serif text-3xl text-white font-bold flex items-center gap-3">
-                                    {user.displayName}
-                                    <button 
-                                        onClick={() => {
-                                            setEditNameValue(user.displayName);
-                                            setIsEditingName(true);
-                                        }}
-                                        className="opacity-0 group-hover/edit:opacity-100 transition-all text-slate-500 hover:text-amber-500 text-sm transform translate-x-[-10px] group-hover/edit:translate-x-0"
-                                    >
-                                        ✏️ Edit
-                                    </button>
-                                </h3>
-                            </div>
-                        )}
-                        
-                        <p className="text-slate-500 text-sm mt-1">{user.email || 'Guest Explorer'}</p>
-                    </div>
-
-                    <button 
-                        onClick={() => {
-                            signOut();
-                            window.location.reload();
-                        }}
-                        className="px-6 py-3 border border-slate-700 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 hover:border-slate-500 transition-all text-sm font-bold tracking-wider"
-                    >
-                        LOGOUT
-                    </button>
-                </div>
+                     ) : (
+                        <div className="flex items-center gap-3">
+                            <h3 className="text-xl font-extrabold text-slate-800 dark:text-white">{user.displayName}</h3>
+                            <button onClick={() => setIsEditingName(true)} className="text-slate-400 hover:text-blue-500 text-sm font-bold uppercase">Edit</button>
+                        </div>
+                     )}
+                     <p className="text-slate-500 font-bold text-sm mt-1">{user.email || 'Guest User'}</p>
+                 </div>
             </div>
-        </section>
-
-        {/* Configuration Grid */}
-        <div className="grid md:grid-cols-2 gap-6">
             
-            {/* Audio Panel */}
-            <section className="bg-slate-900/60 backdrop-blur-md p-6 rounded-3xl border border-white/5 shadow-xl">
-                <h2 className="text-lg font-serif font-bold text-slate-200 mb-6 flex items-center gap-2">
-                    <span className="text-amber-500">🔊</span> Audio Levels
-                </h2>
-                
-                <div className="space-y-6">
-                    <div>
-                        <div className="flex justify-between mb-3">
-                            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Music</label>
-                            <span className="text-xs font-mono text-amber-500 bg-amber-900/20 px-2 py-0.5 rounded">{Math.round((user.settings?.musicVolume || 0) * 100)}%</span>
-                        </div>
-                        <input 
-                            type="range" 
-                            min="0" 
-                            max="1" 
-                            step="0.05"
-                            value={user.settings?.musicVolume ?? 0.3}
-                            onChange={(e) => handleUpdateSetting('musicVolume', parseFloat(e.target.value))}
-                            className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-amber-500 hover:accent-amber-400"
-                        />
-                    </div>
-
-                    <div>
-                        <div className="flex justify-between mb-3">
-                            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">SFX</label>
-                            <span className="text-xs font-mono text-amber-500 bg-amber-900/20 px-2 py-0.5 rounded">{Math.round((user.settings?.sfxVolume || 0) * 100)}%</span>
-                        </div>
-                        <input 
-                            type="range" 
-                            min="0" 
-                            max="1" 
-                            step="0.05"
-                            value={user.settings?.sfxVolume ?? 0.5}
-                            onChange={(e) => handleUpdateSetting('sfxVolume', parseFloat(e.target.value))}
-                            className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-amber-500 hover:accent-amber-400"
-                        />
-                    </div>
-                </div>
-            </section>
-
-            {/* Appearance Panel */}
-            <section className="bg-slate-900/60 backdrop-blur-md p-6 rounded-3xl border border-white/5 shadow-xl">
-                <h2 className="text-lg font-serif font-bold text-slate-200 mb-6 flex items-center gap-2">
-                    <span className="text-amber-500">🎨</span> Interface
-                </h2>
-                
-                <div className="grid grid-cols-3 gap-2 h-24">
-                    {[
-                        { id: 'light', label: 'Light', icon: '☀️' },
-                        { id: 'system', label: 'Auto', icon: '💻' },
-                        { id: 'dark', label: 'Dark', icon: '🌙' }
-                    ].map((mode) => {
-                        const active = (user.settings?.theme || 'dark') === mode.id;
-                        return (
-                            <button
-                                key={mode.id}
-                                onClick={() => handleUpdateSetting('theme', mode.id)}
-                                className={`flex flex-col items-center justify-center gap-2 rounded-xl border-2 transition-all
-                                    ${active 
-                                        ? 'bg-amber-600/20 border-amber-500 text-amber-500' 
-                                        : 'bg-slate-950 border-slate-800 text-slate-500 hover:border-slate-600 hover:text-slate-300'}
-                                `}
-                            >
-                                <span className="text-2xl">{mode.icon}</span>
-                                <span className="text-[10px] font-bold uppercase tracking-wider">{mode.label}</span>
-                            </button>
-                        )
-                    })}
-                </div>
-                <p className="text-[10px] text-slate-500 mt-4 text-center italic">
-                    "History is best viewed in the dark."
-                </p>
-            </section>
-        </div>
-
-        {/* Danger Zone */}
-        <section className="mt-8 border border-red-900/30 bg-red-950/10 rounded-2xl p-6 transition-all hover:bg-red-950/20">
-            <h3 className="text-red-500 font-bold mb-2 flex items-center gap-2 text-sm uppercase tracking-widest">
-                ⚠️ Danger Zone
-            </h3>
-            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-                <p className="text-xs text-slate-500">
-                    Permanently delete agent data. This action is irreversible.
-                </p>
-                <button 
-                    onClick={handleDelete}
-                    disabled={isDeleting}
-                    className="px-6 py-2 bg-transparent border border-red-900 text-red-700 hover:bg-red-900 hover:text-white hover:border-red-500 rounded-lg text-xs font-bold uppercase tracking-wider transition-all"
-                >
-                    {isDeleting ? 'Erasing...' : 'Delete Account'}
+            <div className="mt-8 pt-6 border-t-2 border-slate-100 dark:border-slate-800">
+                <button onClick={() => { signOut(); window.location.reload(); }} className="w-full py-4 text-slate-600 dark:text-slate-300 font-extrabold uppercase tracking-wide hover:bg-slate-50 dark:hover:bg-slate-800 rounded-2xl transition-colors">
+                    Sign Out
                 </button>
             </div>
         </section>
 
-        {/* Footer */}
-        <div className="text-center pt-8 opacity-40 hover:opacity-100 transition-opacity duration-500">
-            <p className="font-serif text-xs text-slate-500">CHRONOS INITIATIVE v1.0.4</p>
-            <a href="mailto:support@chronos.ai" className="text-[10px] text-amber-500/50 hover:text-amber-500 mt-2 block">Report Anomaly</a>
-        </div>
+        {/* Preferences */}
+        <section className="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-sm border-2 border-slate-200 dark:border-slate-800">
+             <h2 className="text-lg font-bold text-slate-400 uppercase tracking-wider mb-6">Preferences</h2>
+             
+             <div className="space-y-8">
+                 <div>
+                     <div className="flex justify-between mb-2">
+                         <label className="font-bold text-slate-700 dark:text-slate-200">Sound Effects</label>
+                     </div>
+                     <input 
+                        type="range" min="0" max="1" step="0.1"
+                        value={user.settings?.sfxVolume ?? 0.5}
+                        onChange={(e) => handleUpdateSetting('sfxVolume', parseFloat(e.target.value))}
+                        className="w-full h-3 bg-slate-200 rounded-full appearance-none cursor-pointer accent-blue-500"
+                     />
+                 </div>
+
+                 <div>
+                     <div className="flex justify-between mb-2">
+                         <label className="font-bold text-slate-700 dark:text-slate-200">Music Volume</label>
+                     </div>
+                     <input 
+                        type="range" min="0" max="1" step="0.1"
+                        value={user.settings?.musicVolume ?? 0.3}
+                        onChange={(e) => handleUpdateSetting('musicVolume', parseFloat(e.target.value))}
+                        className="w-full h-3 bg-slate-200 rounded-full appearance-none cursor-pointer accent-blue-500"
+                     />
+                 </div>
+             </div>
+        </section>
+
+        {/* Danger Zone */}
+        <section className="mt-8">
+             <button 
+                onClick={handleDelete}
+                className="w-full py-4 text-red-500 font-extrabold uppercase tracking-wide border-2 border-red-100 hover:bg-red-50 rounded-2xl transition-colors"
+             >
+                {isDeleting ? 'Deleting...' : 'Delete Account'}
+             </button>
+        </section>
 
       </div>
     </div>
