@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { UserState } from '../types';
 import { updateUserProgress, signOut, deleteAccount } from '../services/firebase';
@@ -67,10 +68,10 @@ const Settings: React.FC<Props> = ({ user, onUpdateUser }) => {
         
         <header className="text-center mb-12">
             <h1 className="font-serif text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-b from-amber-200 to-amber-600 drop-shadow-md tracking-wider mb-2">
-                SETTINGS
+                SYSTEM
             </h1>
             <div className="h-px w-24 bg-gradient-to-r from-transparent via-amber-500/50 to-transparent mx-auto" />
-            <p className="text-slate-400 text-xs uppercase tracking-[0.3em] mt-4 font-bold">System Configuration</p>
+            <p className="text-slate-400 text-xs uppercase tracking-[0.3em] mt-4 font-bold">Chronos Protocol Config</p>
         </header>
 
         {/* Account Profile Card */}
@@ -99,7 +100,7 @@ const Settings: React.FC<Props> = ({ user, onUpdateUser }) => {
                     <div className="flex-1 text-center md:text-left w-full">
                         <div className="flex items-center justify-center md:justify-start gap-2 mb-1">
                             <span className="text-[10px] font-bold uppercase text-amber-500 tracking-widest border border-amber-500/20 px-2 py-0.5 rounded">
-                                Legion ID: {user.uid.slice(0,6)}...
+                                Agent ID: {user.uid.slice(0,6)}...
                             </span>
                         </div>
 
@@ -146,7 +147,7 @@ const Settings: React.FC<Props> = ({ user, onUpdateUser }) => {
                         }}
                         className="px-6 py-3 border border-slate-700 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 hover:border-slate-500 transition-all text-sm font-bold tracking-wider"
                     >
-                        SIGN OUT
+                        LOGOUT
                     </button>
                 </div>
             </div>
@@ -199,7 +200,7 @@ const Settings: React.FC<Props> = ({ user, onUpdateUser }) => {
             {/* Appearance Panel */}
             <section className="bg-slate-900/60 backdrop-blur-md p-6 rounded-3xl border border-white/5 shadow-xl">
                 <h2 className="text-lg font-serif font-bold text-slate-200 mb-6 flex items-center gap-2">
-                    <span className="text-amber-500">🎨</span> Theme
+                    <span className="text-amber-500">🎨</span> Interface
                 </h2>
                 
                 <div className="grid grid-cols-3 gap-2 h-24">
@@ -238,22 +239,22 @@ const Settings: React.FC<Props> = ({ user, onUpdateUser }) => {
             </h3>
             <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                 <p className="text-xs text-slate-500">
-                    Permanently erase your legacy. This action cannot be undone.
+                    Permanently delete agent data. This action is irreversible.
                 </p>
                 <button 
                     onClick={handleDelete}
                     disabled={isDeleting}
                     className="px-6 py-2 bg-transparent border border-red-900 text-red-700 hover:bg-red-900 hover:text-white hover:border-red-500 rounded-lg text-xs font-bold uppercase tracking-wider transition-all"
                 >
-                    {isDeleting ? 'Erasing History...' : 'Delete Account'}
+                    {isDeleting ? 'Erasing...' : 'Delete Account'}
                 </button>
             </div>
         </section>
 
         {/* Footer */}
         <div className="text-center pt-8 opacity-40 hover:opacity-100 transition-opacity duration-500">
-            <p className="font-serif text-xs text-slate-500">CHRONOS v1.0.0 • Museum of Humanity</p>
-            <a href="mailto:support@chronos.ai" className="text-[10px] text-amber-500/50 hover:text-amber-500 mt-2 block">Report an Issue</a>
+            <p className="font-serif text-xs text-slate-500">CHRONOS INITIATIVE v1.0.4</p>
+            <a href="mailto:support@chronos.ai" className="text-[10px] text-amber-500/50 hover:text-amber-500 mt-2 block">Report Anomaly</a>
         </div>
 
       </div>

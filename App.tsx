@@ -80,7 +80,6 @@ const App: React.FC = () => {
           updates.displayName = name.trim();
       }
 
-      // CRITICAL FIX: Update local state immediately with the result
       const updatedUser = await updateUserProgress(user, updates);
       setUser(updatedUser);
   };
@@ -119,32 +118,57 @@ const App: React.FC = () => {
     setActiveLessonId(null);
   };
 
-  if (loading) return <div className="h-screen bg-slate-950 flex items-center justify-center text-amber-500 font-serif">Loading Chronos...</div>;
+  if (loading) return <div className="h-screen bg-white flex items-center justify-center text-slate-900 font-duo font-bold text-2xl">Loading Chronos...</div>;
 
   if (!user) {
       return (
-          <div className="h-screen bg-slate-950 flex flex-col items-center justify-center p-4 relative overflow-hidden text-slate-100">
-              <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1552832230-c0197dd311b5?q=80&w=1996&auto=format&fit=crop')] bg-cover opacity-20" />
-              <div className="z-10 bg-slate-900/80 p-12 rounded-2xl border border-slate-700 backdrop-blur-sm text-center shadow-2xl animate-fade-in-up">
-                  <h1 className="font-serif text-5xl text-amber-500 font-bold mb-4">CHRONOS</h1>
-                  <p className="text-slate-300 mb-8 max-w-md">The history of the world is waiting. Join the legion.</p>
+          <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 font-duo text-center relative overflow-hidden">
+              {/* Background Pattern */}
+              <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5 pointer-events-none"></div>
+
+              <div className="max-w-4xl w-full flex flex-col md:flex-row items-center gap-12 z-10">
                   
-                  <div className="flex flex-col gap-4">
-                      <button 
-                        onClick={() => handleOpenAuth('login')}
-                        className="bg-amber-600 hover:bg-amber-500 text-white px-8 py-3 rounded-full font-bold transition-colors w-full"
-                      >
-                          Login / Sign Up
-                      </button>
+                  {/* Hero Logo - Replaced with transparent Hourglass SVG */}
+                  <div className="flex-1 flex justify-center animate-bounce-slow">
+                      <div className="w-64 h-64 md:w-80 md:h-80 relative">
+                        {/* Glow */}
+                        <div className="absolute inset-0 bg-amber-400 blur-3xl opacity-20 rounded-full"></div>
+                        <img 
+                            src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Hourglass_modern.svg/1200px-Hourglass_modern.svg.png" 
+                            alt="Chronos Logo" 
+                            className="relative w-full h-full object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-500"
+                        />
+                      </div>
+                  </div>
+
+                  {/* CTA Section */}
+                  <div className="flex-1 flex flex-col items-center md:items-start gap-6">
+                      <h1 className="text-4xl md:text-5xl font-extrabold text-slate-800 leading-tight">
+                          History is not just dates. <br/>
+                          <span className="text-amber-600">It's a story.</span>
+                      </h1>
+                      <p className="text-lg text-slate-500 font-medium max-w-md">
+                          Experience the rise and fall of civilizations through interactive narratives and gamified lessons.
+                      </p>
                       
-                      <button 
-                        onClick={handleGuestEntry}
-                        className="text-slate-400 hover:text-white text-sm font-bold uppercase tracking-widest border-b border-transparent hover:border-slate-500 pb-1"
-                      >
-                          Continue as Guest
-                      </button>
+                      <div className="w-full max-w-sm space-y-4 pt-4">
+                          <button 
+                            onClick={() => handleGuestEntry()}
+                            className="w-full bg-amber-500 hover:bg-amber-400 text-white border-b-4 border-amber-700 active:border-b-0 active:translate-y-1 py-4 rounded-2xl font-extrabold text-sm uppercase tracking-widest transition-all shadow-xl"
+                          >
+                              Begin Your Journey
+                          </button>
+                          
+                          <button 
+                            onClick={() => handleOpenAuth('login')}
+                            className="w-full bg-white hover:bg-gray-50 text-slate-700 border-2 border-gray-200 border-b-4 hover:border-gray-300 active:border-b-0 active:translate-y-1 py-4 rounded-2xl font-extrabold text-sm uppercase tracking-widest transition-all"
+                          >
+                              I already have an account
+                          </button>
+                      </div>
                   </div>
               </div>
+
               <AuthModal 
                 isOpen={showAuthModal} 
                 onClose={() => setShowAuthModal(false)} 
@@ -173,7 +197,7 @@ const App: React.FC = () => {
   const renderContent = () => {
     switch (currentView) {
       case 'dashboard':
-        return <Dashboard lessons={currentCivLessons} user={user} onStartLesson={startLesson} />;
+        return <Dashboard lessons={currentCivLessons} user={user} onStartLesson={startLesson} onSwitchCiv={handleSwitchCiv} />;
       case 'league':
         return <League user={user} />;
       case 'map':
@@ -183,12 +207,12 @@ const App: React.FC = () => {
       case 'settings':
         return <Settings user={user} onUpdateUser={setUser} />;
       default:
-        return <Dashboard lessons={currentCivLessons} user={user} onStartLesson={startLesson} />;
+        return <Dashboard lessons={currentCivLessons} user={user} onStartLesson={startLesson} onSwitchCiv={handleSwitchCiv} />;
     }
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 overflow-hidden transition-colors duration-300">
+    <div className="flex min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 overflow-hidden transition-colors duration-300 font-duo">
       <BackgroundMusic volume={user.settings?.musicVolume ?? 0.3} currentCiv={user.currentCiv} />
       
       <Sidebar 
@@ -200,18 +224,18 @@ const App: React.FC = () => {
       />
 
       {isGuest && (
-          <div className="absolute top-0 left-0 md:left-64 right-0 bg-amber-600/90 text-white px-4 py-2 z-30 flex items-center justify-between text-xs md:text-sm font-bold shadow-lg">
-              <span>You are playing as a Guest. Sign up to save your progress!</span>
+          <div className="absolute top-0 left-0 md:left-64 right-0 bg-amber-500 text-white px-4 py-3 z-30 flex items-center justify-center gap-4 text-sm font-bold shadow-sm">
+              <span>Guest Mode Active. Data not synced.</span>
               <button 
                 onClick={() => handleOpenAuth('signup')}
-                className="bg-black/30 hover:bg-black/50 px-3 py-1 rounded"
+                className="bg-white text-amber-600 px-4 py-1 rounded-xl border-b-2 border-amber-200 active:border-b-0 active:translate-y-px transition-all uppercase text-xs tracking-wider"
               >
                   Save Progress
               </button>
           </div>
       )}
 
-      <main className={`flex-1 md:ml-64 h-screen overflow-y-auto relative scroll-smooth ${isGuest ? 'pt-10' : ''}`}>
+      <main className={`flex-1 md:ml-64 h-screen overflow-y-auto relative scroll-smooth ${isGuest ? 'pt-14' : ''}`}>
         {renderContent()}
       </main>
 

@@ -1,8 +1,10 @@
+
+
 import { GoogleGenAI, LiveServerMessage, Modality, Type } from "@google/genai";
 
-// Secure API Key access using Vite's import.meta.env
-const API_KEY = import.meta.env.VITE_API_KEY;
-const getAI = () => new GoogleGenAI({ apiKey: API_KEY });
+// Secure API Key access using process.env.API_KEY as per guidelines.
+// The 'define' block in vite.config.ts ensures this is replaced with the string literal at build time.
+const getAI = () => new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 // AudioContext Singleton to avoid browser limits
 let sharedAudioContext: AudioContext | null = null;
@@ -145,6 +147,7 @@ export const connectLiveTutor = async (
     callbacks: {
       onopen: () => {
         console.log("Live Tutor Connected");
+        // Stream audio from the microphone to the model.
         const source = inputAudioContext.createMediaStreamSource(stream);
         const scriptProcessor = inputAudioContext.createScriptProcessor(4096, 1, 1);
         

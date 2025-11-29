@@ -4,43 +4,55 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Chronos - History Quest</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⏳</text></svg>">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet">
     <script>
       tailwind.config = {
         darkMode: 'class',
         theme: {
           extend: {
             fontFamily: {
-              serif: ['Cinzel', 'serif'],
-              sans: ['Inter', 'sans-serif'],
+              sans: ['Nunito', 'sans-serif'],
+              duo: ['Nunito', 'sans-serif'],
+              serif: ['Merriweather', 'serif'],
             },
             colors: {
+              duo: {
+                green: '#58cc02',
+                'green-dark': '#46a302',
+                blue: '#1cb0f6',
+                'blue-dark': '#1899d6',
+                red: '#ff4b4b',
+                'red-dark': '#ea2b2b',
+                yellow: '#ffc800',
+                'yellow-dark': '#e5b400',
+                gray: '#e5e5e5',
+                'gray-dark': '#cecece',
+                slate: '#131f24', // Duo Dark Mode bg
+              },
               rome: {
-                crimson: '#781812',
-                gold: '#D4AF37',
+                primary: '#ef4444', // Red-500
+                dark: '#b91c1c',     // Red-700
               },
               egypt: {
-                lapis: '#1E3A8A',
-                sand: '#EAB308',
+                primary: '#eab308', // Yellow-500
+                dark: '#a16207',    // Yellow-700
               },
               byzantium: {
-                purple: '#581c87',
-                gold: '#fde047',
+                primary: '#a855f7', // Purple-500
+                dark: '#7e22ce',    // Purple-700
               },
               persia: {
-                teal: '#0f766e',
-                amber: '#fcd34d',
-              },
-              ui: {
-                dark: '#0f172a',
-                panel: '#1e293b',
+                primary: '#14b8a6', // Teal-500
+                dark: '#0f766e',    // Teal-700
               }
             },
-            backgroundImage: {
-              'noise': "url('https://www.transparenttextures.com/patterns/stardust.png')",
+            boxShadow: {
+              '3d': '0 4px 0 0 rgba(0,0,0,0.2)',
+              '3d-active': '0 0 0 0 rgba(0,0,0,0.2)',
             },
             keyframes: {
               shake: {
@@ -50,26 +62,20 @@
                 '60%': { transform: 'translateX(-4px)' },
                 '80%': { transform: 'translateX(4px)' },
               },
-              'fade-in-up': {
-                '0%': { opacity: '0', transform: 'translateY(20px)' },
-                '100%': { opacity: '1', transform: 'translateY(0)' },
-              },
               pop: {
-                '0%': { transform: 'scale(0.95)' },
-                '40%': { transform: 'scale(1.05)' },
+                '0%': { transform: 'scale(0.8)' },
+                '40%': { transform: 'scale(1.1)' },
                 '100%': { transform: 'scale(1)' },
               },
-              shimmer: {
-                '0%': { backgroundPosition: '-1000px 0' },
-                '100%': { backgroundPosition: '1000px 0' }
+              bounce: {
+                '0%, 100%': { transform: 'translateY(0)' },
+                '50%': { transform: 'translateY(-10px)' },
               }
             },
             animation: {
-              'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
               'shake': 'shake 0.5s cubic-bezier(.36,.07,.19,.97) both',
-              'fade-in-up': 'fade-in-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-              'pop': 'pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
-              'shimmer': 'shimmer 2.5s linear infinite',
+              'pop': 'pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
+              'bounce-slow': 'bounce 2s infinite',
             }
           }
         }
@@ -77,40 +83,40 @@
     </script>
     <style>
       body {
-        background-color: #020617;
-        color: #e2e8f0;
+        background-color: #ffffff; /* Default Light Mode */
+        color: #3c3c3c;
       }
-      /* Custom Scrollbar */
-      ::-webkit-scrollbar {
-        width: 6px;
-      }
-      ::-webkit-scrollbar-track {
-        background: #020617; 
-      }
-      ::-webkit-scrollbar-thumb {
-        background: #334155; 
-        border-radius: 99px;
-      }
-      ::-webkit-scrollbar-thumb:hover {
-        background: #475569; 
+      .dark body {
+        background-color: #131f24; /* Duo Dark Mode */
+        color: #ffffff;
       }
       
-      .glass-panel {
-        background: rgba(15, 23, 42, 0.6);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.08);
+      /* Duo-style Button Base */
+      .btn-duo {
+        transition: all 0.1s;
+        border-bottom-width: 4px;
       }
-      
-      .text-glow {
-        text-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+      .btn-duo:active {
+        border-bottom-width: 0px;
+        transform: translateY(4px);
       }
     </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
+    "firebase/": "https://aistudiocdn.com/firebase@^12.6.0/",
+    "vite": "https://aistudiocdn.com/vite@^7.2.4",
+    "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.1.1"
+  }
+}
+</script>
 <link rel="stylesheet" href="/index.css">
 </head>
   <body>
-    <!-- Global Texture Overlay -->
-    <div style="position: fixed; inset: 0; pointer-events: none; z-index: 9999; opacity: 0.04; background-image: url('https://www.transparenttextures.com/patterns/stardust.png');"></div>
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
   </body>
