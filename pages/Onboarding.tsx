@@ -21,9 +21,14 @@ const Onboarding: React.FC<Props> = ({ onSelectCiv }) => {
       
       {/* Header */}
       <div className="text-center max-w-2xl mb-12 animate-fade-in-up">
-        {/* Replaced Owl with Hourglass Emoji or just removed the mascot container */}
+        {/* Hourglass Icon */}
         <div className="w-24 h-24 mx-auto mb-6 bg-amber-100 rounded-3xl flex items-center justify-center shadow-3d transform -rotate-6">
-            <span className="text-5xl">⏳</span>
+            <img 
+                src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Hourglass_modern.svg/512px-Hourglass_modern.svg.png" 
+                className="w-16 h-16 object-contain" 
+                alt="Chronos"
+                referrerPolicy="no-referrer"
+            />
         </div>
         <h1 className="text-3xl md:text-4xl font-extrabold text-slate-800 mb-4">
             Where does your story begin?
@@ -80,8 +85,16 @@ const Onboarding: React.FC<Props> = ({ onSelectCiv }) => {
                     `}
                 >
                     {/* Icon Container */}
-                    <div className="bg-white/20 rounded-full p-6 mb-6 backdrop-blur-sm">
-                        <span className="text-6xl drop-shadow-md">{theme.icon}</span>
+                    <div className="bg-white/20 rounded-3xl p-6 mb-6 backdrop-blur-sm shadow-inner w-full flex items-center justify-center aspect-square">
+                        <img 
+                            src={theme.symbolUrl} 
+                            className="w-24 h-24 object-contain drop-shadow-md" 
+                            alt={civ} 
+                            referrerPolicy="no-referrer"
+                            onError={(e) => {
+                                (e.target as HTMLImageElement).src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/No_image_available.svg/480px-No_image_available.svg.png';
+                            }}
+                        />
                     </div>
 
                     <h3 className={`text-2xl font-extrabold tracking-wide mb-2 ${textClass}`}>

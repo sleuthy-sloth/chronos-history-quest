@@ -137,17 +137,18 @@ const LessonView: React.FC<Props> = ({ lesson, onExit, onComplete, sfxVolume }) 
 
             {activity.type === ActivityType.READING && (
                 <div className="w-full flex flex-col gap-6">
-                    <div className="relative group">
+                    <div className="relative group w-full min-h-[200px] bg-gray-100 dark:bg-slate-900 rounded-2xl overflow-hidden border-2 border-gray-200 dark:border-slate-700 shadow-sm">
                         <img 
                             src={activity.customImage || getImage(activity.question)} 
-                            className="w-full max-h-64 object-contain bg-gray-100 dark:bg-slate-900 rounded-2xl border-2 border-gray-200 dark:border-slate-700 shadow-sm" 
+                            className="w-full h-full object-contain" 
                             alt="Historical Artifact"
+                            referrerPolicy="no-referrer"
                             onError={(e) => {
-                                (e.target as HTMLImageElement).src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/No_image_available.svg/1024px-No_image_available.svg.png';
+                                (e.target as HTMLImageElement).src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/No_image_available.svg/800px-No_image_available.svg.png';
                             }}
                         />
                         {activity.imageCredit && (
-                            <div className="absolute bottom-2 right-2 bg-black/60 text-white text-[10px] px-2 py-1 rounded backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="absolute bottom-0 right-0 left-0 bg-black/60 text-white text-[10px] px-2 py-1 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity text-center">
                                 Source: {activity.imageCredit}
                             </div>
                         )}
@@ -162,7 +163,7 @@ const LessonView: React.FC<Props> = ({ lesson, onExit, onComplete, sfxVolume }) 
 
                     {/* Mascot Hint */}
                     <div className="flex items-end gap-4 mt-2">
-                         <img src={theme.mascotImage} className="w-20 h-20 object-contain drop-shadow-md" alt="Mascot" />
+                         <img src={theme.mascotImage} className="w-20 h-20 object-contain drop-shadow-md" alt="Mascot" referrerPolicy="no-referrer" />
                          <div className="bg-white dark:bg-slate-800 border-2 border-gray-200 dark:border-slate-700 p-4 rounded-2xl rounded-bl-none text-gray-600 dark:text-gray-400 font-bold text-sm shadow-sm flex-1 relative">
                              {activity.mascotGuidance}
                              <div className="absolute -bottom-[2px] -left-[2px] w-4 h-4 bg-white dark:bg-slate-800 border-b-2 border-l-2 border-gray-200 dark:border-slate-700 transform rotate-45"></div>
@@ -193,7 +194,7 @@ const LessonView: React.FC<Props> = ({ lesson, onExit, onComplete, sfxVolume }) 
                     ))}
                     {activity.mascotGuidance && (
                         <div className="flex items-center gap-3 mt-4 opacity-70">
-                            <img src={theme.mascotImage} className="w-12 h-12 object-contain" />
+                            <img src={theme.mascotImage} className="w-12 h-12 object-contain" referrerPolicy="no-referrer" />
                             <p className="text-sm font-bold text-gray-500">"{activity.mascotGuidance}"</p>
                         </div>
                     )}

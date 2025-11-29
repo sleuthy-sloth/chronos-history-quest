@@ -28,7 +28,7 @@ export const INITIAL_USER_STATE: UserState = {
 // Fallback generator
 export const getImage = (keyword: string) => {
   const prompt = encodeURIComponent(`historical museum artifact photo, high quality, ${keyword}`);
-  return `https://image.pollinations.ai/prompt/${prompt}?width=1024&height=768&nologo=true&seed=${Math.random()}`;
+  return `https://image.pollinations.ai/prompt/${prompt}?width=800&height=600&nologo=true&seed=${Math.random()}`;
 };
 
 export const CIV_MUSIC = {
@@ -50,12 +50,12 @@ export const CIV_THEMES = {
     secondary: 'text-red-500',
     icon: '🏛️',
     symbolUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Vexilloid_of_the_Roman_Empire.svg/512px-Vexilloid_of_the_Roman_Empire.svg.png',
-    coverImage: 'https://images.unsplash.com/photo-1552832230-c0197dd311b5?q=80&w=1996&auto=format&fit=crop',
+    coverImage: 'https://images.unsplash.com/photo-1552832230-c0197dd311b5?q=80&w=800&auto=format&fit=crop',
     mascot: 'Augustus',
     mascotImage: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Augustus_Bevagna_Glyptothek_Munich_317.jpg/640px-Augustus_Bevagna_Glyptothek_Munich_317.jpg',
     description: "The Rise of Rome",
     leagueTitle: "Legion League",
-    mapImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Roman_Empire_Trajan_117AD.png/1280px-Roman_Empire_Trajan_117AD.png",
+    mapImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Roman_Empire_Trajan_117AD.png/800px-Roman_Empire_Trajan_117AD.png",
     props: ['🏛️', '🛡️']
   },
   [CivType.EGYPT]: {
@@ -68,13 +68,13 @@ export const CIV_THEMES = {
     accent: 'border-yellow-500',
     secondary: 'text-yellow-600',
     icon: '👁️',
-    symbolUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Eye_of_Horus_bw.svg/1024px-Eye_of_Horus_bw.svg.png',
-    coverImage: 'https://images.unsplash.com/photo-1503177119275-0aa32b3a9368?q=80&w=2070&auto=format&fit=crop',
+    symbolUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Wedjat_%28Udjat%29_eye_amulet_MET_DP115664.jpg/800px-Wedjat_%28Udjat%29_eye_amulet_MET_DP115664.jpg',
+    coverImage: 'https://images.unsplash.com/photo-1503177119275-0aa32b3a9368?q=80&w=800&auto=format&fit=crop',
     mascot: 'Tutankhamen',
     mascotImage: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/Tutanchamun_Maske.jpg/640px-Tutanchamun_Maske.jpg',
     description: "Sands of the Nile",
     leagueTitle: "Pharaoh League",
-    mapImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Ancient_Egypt_map-en.svg/836px-Ancient_Egypt_map-en.svg.png",
+    mapImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Ancient_Egypt_map-en.svg/800px-Ancient_Egypt_map-en.svg.png",
     props: ['🌴', '🏺']
   },
   [CivType.BYZANTIUM]: {
@@ -87,13 +87,13 @@ export const CIV_THEMES = {
     accent: 'border-purple-600',
     secondary: 'text-purple-500',
     icon: '⛪',
-    symbolUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Chi_Rho.svg/1024px-Chi_Rho.svg.png',
-    coverImage: 'https://images.unsplash.com/photo-1596367407072-acf97105cb36?q=80&w=2070&auto=format&fit=crop',
+    symbolUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Chi_Rho.svg/800px-Chi_Rho.svg.png',
+    coverImage: 'https://images.unsplash.com/photo-1596367407072-acf97105cb36?q=80&w=800&auto=format&fit=crop',
     mascot: 'Justinian',
     mascotImage: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Mosaic_of_Justinian_I_-_Basilica_San_Vitale_%28Ravenna%29.jpg/640px-Mosaic_of_Justinian_I_-_Basilica_San_Vitale_%28Ravenna%29.jpg',
     description: "The Golden City",
     leagueTitle: "Imperial League",
-    mapImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Justinian555AD.png/1280px-Justinian555AD.png",
+    mapImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Justinian555AD.png/800px-Justinian555AD.png",
     props: ['⛪', '📜']
   },
   [CivType.PERSIA]: {
@@ -106,13 +106,13 @@ export const CIV_THEMES = {
     accent: 'border-teal-600',
     secondary: 'text-teal-500',
     icon: '🦁',
-    symbolUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Simurgh.svg/1024px-Simurgh.svg.png',
-    coverImage: 'https://images.unsplash.com/photo-1579975096649-e773152b04cb?q=80&w=2070&auto=format&fit=crop',
+    symbolUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Simurgh.svg/800px-Simurgh.svg.png',
+    coverImage: 'https://images.unsplash.com/photo-1579975096649-e773152b04cb?q=80&w=800&auto=format&fit=crop',
     mascot: 'Cyrus',
     mascotImage: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Cyrus_Cylinder_front.jpg/640px-Cyrus_Cylinder_front.jpg',
     description: "Empire of Kings",
     leagueTitle: "Immortal League",
-    mapImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Achaemenid_Empire_at_its_greatest_extent.png/1280px-Achaemenid_Empire_at_its_greatest_extent.png",
+    mapImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Achaemenid_Empire_at_its_greatest_extent.png/800px-Achaemenid_Empire_at_its_greatest_extent.png",
     props: ['🏹', '🐎']
   }
 };
@@ -213,7 +213,7 @@ export const LESSON_DATA: Lesson[] = [
         question: 'Origins of Rome',
         narrative: "In the shadow of history, the origins of Rome are shrouded in myth. We are told the Eternal City was founded in **753 BC**, not by a council, but by two brothers: **Romulus and Remus**.\n\nSons of Mars, god of War, they were abandoned in the Tiber River by a jealous king. Destiny, however, does not drown easily.",
         mascotGuidance: "My father Mars gave me my sword. My mother gave me my destiny.",
-        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Rubens_Romulus_and_Remus.jpg/1280px-Rubens_Romulus_and_Remus.jpg",
+        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Rubens_Romulus_and_Remus.jpg/640px-Rubens_Romulus_and_Remus.jpg",
         imageCredit: "Romulus and Remus, Rubens",
         scholarNotes: "Archaeology confirms settlements on the Palatine Hill dating to the mid-8th century BC, aligning eerily well with the legendary date of 753 BC."
       },
@@ -223,7 +223,7 @@ export const LESSON_DATA: Lesson[] = [
         question: 'The She-Wolf',
         narrative: "The basket containing the infants drifted to the foot of the Palatine Hill. There, a she-wolf (**Lupa**) heard their cries.\n\nIn a moment of unnatural mercy, she did not devour them but nursed them. They were later raised by a shepherd. The savagery of the wolf and the humility of the shepherd would define Rome.",
         mascotGuidance: "We are children of the wolf. That is why we bite.",
-        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/She-wolf_suckles_Romulus_and_Remus.jpg/1024px-She-wolf_suckles_Romulus_and_Remus.jpg",
+        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/She-wolf_suckles_Romulus_and_Remus.jpg/640px-She-wolf_suckles_Romulus_and_Remus.jpg",
         imageCredit: "Capitoline Wolf, Musei Capitolini"
       },
       {
@@ -239,7 +239,7 @@ export const LESSON_DATA: Lesson[] = [
         question: 'The Fatal Argument',
         narrative: "When they came of age, the brothers sought to build a city. Romulus chose the **Palatine Hill**; Remus, the Aventine.\n\nThey consulted the gods through augury (birds). Remus saw 6 vultures first; Romulus saw 12 later. The dispute turned violent. Romulus killed his brother, shouting: *'So perish anyone who leaps over my walls!'*",
         mascotGuidance: "A city needs walls. And walls need blood.",
-        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Sabatelli_-_L%27uccisione_di_Remo.jpg/1024px-Sabatelli_-_L%27uccisione_di_Remo.jpg",
+        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Sabatelli_-_L%27uccisione_di_Remo.jpg/640px-Sabatelli_-_L%27uccisione_di_Remo.jpg",
         imageCredit: "The Killing of Remus, Sabatelli",
         scholarNotes: "Fratricide (brother-killing) is Rome's original sin, foreshadowing the bloody civil wars that would later destroy the Republic."
       },
@@ -268,7 +268,7 @@ export const LESSON_DATA: Lesson[] = [
         question: 'The Age of Kings',
         narrative: "For 250 years, Rome was ruled by kings. The first was Romulus. The second, Numa Pompilius, was a peaceful priest-king who established the **Vestal Virgins** and the calendar.\n\nBut absolute power corrupts. The line ended with the seventh king, **Tarquin the Proud**, a tyrant who murdered senators and ruled by fear.",
         mascotGuidance: "Kings are useful only until they think they are gods.",
-        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Numa_Pompilius_and_the_Nymph_Egeria.jpg/800px-Numa_Pompilius_and_the_Nymph_Egeria.jpg",
+        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Numa_Pompilius_and_the_Nymph_Egeria.jpg/640px-Numa_Pompilius_and_the_Nymph_Egeria.jpg",
         imageCredit: "Numa Pompilius, Felice Giani"
       },
       {
@@ -306,7 +306,7 @@ export const LESSON_DATA: Lesson[] = [
         question: 'The Oath',
         narrative: "After a crime by the King's son against the noblewoman Lucretia, the Romans snapped. Led by **Brutus**, they expelled Tarquin in 509 BC.\n\nBrutus swore an oath that Rome would **never** again be ruled by a king. They created a *Res Publica* (Public Affair), ruled by two Consuls elected for one year, to prevent tyranny.",
         mascotGuidance: "Liberty is not given. It is taken.",
-        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Gavin_Hamilton_-_The_Oath_of_Brutus.jpg/1280px-Gavin_Hamilton_-_The_Oath_of_Brutus.jpg",
+        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Gavin_Hamilton_-_The_Oath_of_Brutus.jpg/800px-Gavin_Hamilton_-_The_Oath_of_Brutus.jpg",
         imageCredit: "The Oath of Brutus, Gavin Hamilton"
       },
       {
@@ -337,7 +337,7 @@ export const LESSON_DATA: Lesson[] = [
         question: 'The Black Land',
         narrative: "Egypt is the Nile. Without this river, there is only the Sahara. Every year, the river floods, depositing rich black silt.\n\nThe Egyptians called their land **Kemet** (The Black Land), distinguishing it from **Deshret** (The Red Land) of the deadly desert. Life, religion, and time itself were measured by the river's pulse.",
         mascotGuidance: "The river is a god. Respect it.",
-        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Egypt.Giza.Sphinx.01.jpg/1280px-Egypt.Giza.Sphinx.01.jpg",
+        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Egypt.Giza.Sphinx.01.jpg/800px-Egypt.Giza.Sphinx.01.jpg",
         imageCredit: "Great Sphinx and Pyramids"
       },
       {
@@ -365,7 +365,7 @@ export const LESSON_DATA: Lesson[] = [
         question: 'The Two Crowns',
         narrative: "Before the Pharaohs, there were two Egypts: Upper Egypt (South, White Crown) and Lower Egypt (North, Red Crown).\n\nAround 3100 BC, King **Narmer** conquered the north. He combined the crowns into the **Pschent** (Double Crown), symbolizing total unity. He was the first Lord of the Two Lands.",
         mascotGuidance: "One king. One river. One people.",
-        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Narmer_Palette.jpg/800px-Narmer_Palette.jpg",
+        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Narmer_Palette.jpg/640px-Narmer_Palette.jpg",
         imageCredit: "The Narmer Palette"
       },
       {
@@ -396,7 +396,7 @@ export const LESSON_DATA: Lesson[] = [
         question: 'Imhotep\'s Genius',
         narrative: "Early kings were buried in flat benches called *mastabas*. But the architect **Imhotep** had a vision for King Djoser. He stacked six mastabas on top of each other, creating the **Step Pyramid**.\n\nIt was the first skyscraper in history—a giant stone stairway for the Pharaoh's soul to ascend to the stars.",
         mascotGuidance: "We build for eternity, not for the living.",
-        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Saqqara_pyramid_ver_2.jpg/1024px-Saqqara_pyramid_ver_2.jpg",
+        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Saqqara_pyramid_ver_2.jpg/800px-Saqqara_pyramid_ver_2.jpg",
         imageCredit: "Step Pyramid of Djoser"
       },
       {
@@ -454,14 +454,14 @@ export const LESSON_DATA: Lesson[] = [
         question: 'City of Constantine',
         narrative: "Emperor **Constantine** needed a capital closer to the wealthy East and the Persian frontier. He chose the ancient Greek port of Byzantium on the Bosporus Strait.\n\nIn 330 AD, he dedicated it as **Nova Roma** (New Rome). History knows it as Constantinople. It was a Christian city, free of Rome's pagan past, designed to rule the world.",
         mascotGuidance: "Rome is the past. This city is the future.",
-        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Constantinople_3d_reconstruction_by_Byzantium_1200.jpg/1280px-Constantinople_3d_reconstruction_by_Byzantium_1200.jpg",
+        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Constantinople_3d_reconstruction_by_Byzantium_1200.jpg/800px-Constantinople_3d_reconstruction_by_Byzantium_1200.jpg",
         imageCredit: "Reconstruction of Constantinople"
       },
       {
         id: 'b2-2',
         type: ActivityType.MAP_CONQUEST,
         question: 'Locate Constantinople',
-        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Roman_Empire_with_diocesan_boundaries_300_AD.png/1280px-Roman_Empire_with_diocesan_boundaries_300_AD.png",
+        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Roman_Empire_with_diocesan_boundaries_300_AD.png/800px-Roman_Empire_with_diocesan_boundaries_300_AD.png",
         mapTarget: { x: 55, y: 38, label: 'Constantinople' },
         mapQuiz: { question: "It sits on which strait?", options: ["Bosporus", "Gibraltar", "Nile", "Tiber"], correctAnswer: "Bosporus" }
       }
@@ -483,7 +483,7 @@ export const LESSON_DATA: Lesson[] = [
         question: 'Triple Defense',
         narrative: "The **Theodosian Walls** were the greatest fortifications ever built. A triple layer of defense: a deep moat, an outer wall, and a massive inner wall with 96 towers.\n\nAttila the Hun turned back at the sight of them. For 1,000 years, they kept the light of civilization burning while Europe slept in darkness.",
         mascotGuidance: "Let the barbarians come. They will break against stone.",
-        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Theodosian_Walls.jpg/1280px-Theodosian_Walls.jpg",
+        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Theodosian_Walls.jpg/800px-Theodosian_Walls.jpg",
         imageCredit: "Theodosian Walls"
       },
       {
@@ -513,7 +513,7 @@ export const LESSON_DATA: Lesson[] = [
         question: 'Vassals no More',
         narrative: "The Persians were originally a small tribe of horsemen, ruled by the powerful Medes. But **Cyrus the Great** united the Persian clans and revolted.\n\nHe didn't just defeat the Medes; he integrated them. He created a dual monarchy where Medes and Persians fought side by side. It was the beginning of the Achaemenid Empire.",
         mascotGuidance: "Strength comes from unity, not domination.",
-        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Achaemenid_Soldiers.jpg/1280px-Achaemenid_Soldiers.jpg",
+        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Achaemenid_Soldiers.jpg/800px-Achaemenid_Soldiers.jpg",
         imageCredit: "Persian Guards"
       },
       {
@@ -541,7 +541,7 @@ export const LESSON_DATA: Lesson[] = [
         question: 'The Open Gate',
         narrative: "Babylon was the greatest city on earth. Its walls were impregnable. But its king, Nabonidus, was hated. \n\nIn 539 BC, Cyrus marched to the city. He didn't need siege engines. The priests of Marduk opened the gates for him. He entered not as a conqueror, but as a restorer of order. He freed the Jewish exiles and allowed them to rebuild Jerusalem.",
         mascotGuidance: "I conquered the world's greatest city without shedding a drop of blood.",
-        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Cyrus_Cylinder_front.jpg/1024px-Cyrus_Cylinder_front.jpg",
+        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Cyrus_Cylinder_front.jpg/800px-Cyrus_Cylinder_front.jpg",
         imageCredit: "Cyrus Cylinder"
       },
       {
@@ -569,7 +569,7 @@ export const LESSON_DATA: Lesson[] = [
         question: 'Satraps and Roads',
         narrative: "To rule an empire stretching from India to Greece, the Persians invented administration. They divided the land into provinces ruled by **Satraps** (Governors).\n\nThey built the **Royal Road**, 1,600 miles long. Using a relay of fresh horses, a message could travel from Susa to Sardis in 7 days. Herodotus wrote: *'Neither snow nor rain nor heat stays these couriers.'*",
         mascotGuidance: "Speed is power.",
-        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Darius_I_the_Great_receiving_homage.jpg/1280px-Darius_I_the_Great_receiving_homage.jpg",
+        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Darius_I_the_Great_receiving_homage.jpg/800px-Darius_I_the_Great_receiving_homage.jpg",
         imageCredit: "Darius the Great"
       },
       {

@@ -1,5 +1,4 @@
 
-
 import React from 'react';
 import { Lesson, UserState, CivType } from '../types';
 import { CIV_THEMES } from '../constants';
@@ -35,7 +34,7 @@ const Dashboard: React.FC<Props> = ({ lessons, user, onStartLesson, onSwitchCiv 
                 onClick={() => onSwitchCiv(user.currentCiv)} 
                 className={`flex items-center gap-2 px-3 py-1 rounded-xl border-b-4 active:border-b-0 active:translate-y-1 transition-all ${theme.bgLight} ${theme.border}`}
             >
-                <span className="text-2xl">{theme.icon}</span>
+                <img src={theme.symbolUrl} className="w-6 h-6 object-contain" alt={user.currentCiv} referrerPolicy="no-referrer" />
                 <span className={`font-extrabold uppercase text-xs ${theme.text}`}>Timeline</span>
             </button>
         </div>
