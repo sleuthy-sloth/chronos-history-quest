@@ -18,13 +18,12 @@ export default defineConfig(({ mode }) => {
     },
     define: {
       // Securely inject the API key as a string literal during build.
-      // We define the specific key first to ensure it takes precedence
       'process.env.API_KEY': JSON.stringify(apiKey),
       'import.meta.env.VITE_API_KEY': JSON.stringify(apiKey),
       
-      // Then we polyfill the rest of process.env to prevent crashes
-      // Note: We avoid overwriting the entire process.env object to keep API_KEY accessible
-      'process.env': `({ API_KEY: ${JSON.stringify(apiKey)} })`,
+      // Polyfill process.env using JSON.stringify to ensure valid syntax
+      // This fixes the "Invalid define value" error
+      'process.env': JSON.stringify({ API_KEY: apiKey }),
       'process.version': JSON.stringify(''),
     },
   };
