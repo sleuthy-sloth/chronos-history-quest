@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { UserState, Avatar, LeagueMember } from '../types';
 import { AVATARS, CIV_THEMES } from '../constants';
@@ -241,6 +242,50 @@ const Profile: React.FC<Props> = ({ user, onUpdateUser }) => {
                 </div>
             )}
         </section>
+
+        {/* --- Footer: Codex & Credits --- */}
+        <footer className="w-full max-w-5xl mt-16 pt-12 border-t border-slate-800/50 text-slate-500 pb-12">
+            <div className="grid md:grid-cols-2 gap-12">
+                <div>
+                    <h3 className="font-serif font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <span className="text-amber-600">📜</span> Mission Profile
+                    </h3>
+                    <p className="text-sm leading-relaxed mb-4">
+                        Chronos is an open-source educational initiative designed to gamify historical learning. 
+                        Our goal is to move beyond passive reading into active tactical decision-making.
+                    </p>
+                    <div className="flex gap-2 text-xs font-mono">
+                        <span className="bg-slate-900 px-2 py-1 rounded border border-slate-800">v1.0.0 (Alpha)</span>
+                        <span className="bg-slate-900 px-2 py-1 rounded border border-slate-800">React + Vite</span>
+                    </div>
+                </div>
+
+                <div className="space-y-6">
+                    <div>
+                        <h4 className="font-bold text-slate-300 text-xs uppercase tracking-wider mb-2">Asset Attribution</h4>
+                        <ul className="space-y-1 text-xs">
+                            <li>• Historical Artifacts: <a href="https://commons.wikimedia.org" target="_blank" rel="noreferrer" className="text-amber-600 hover:underline">Wikimedia Commons</a> (Public Domain / CC BY-SA)</li>
+                            <li>• Atmospheric Visuals: <a href="https://unsplash.com" target="_blank" rel="noreferrer" className="text-amber-600 hover:underline">Unsplash</a></li>
+                            <li>• Dynamic Imagery: <a href="https://pollinations.ai" target="_blank" rel="noreferrer" className="text-amber-600 hover:underline">Pollinations.ai</a></li>
+                            <li>• Icons: <a href="https://fonts.google.com/icons" target="_blank" rel="noreferrer" className="text-amber-600 hover:underline">Google Fonts</a> & Custom SVGs</li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h4 className="font-bold text-slate-300 text-xs uppercase tracking-wider mb-2">License Protocol</h4>
+                        <p className="text-xs leading-relaxed">
+                            This project is licensed under the <strong className="text-slate-300">MIT License</strong>. 
+                            It is free for educational use and modification. 
+                            AI-generated content (Gemini) may vary in historical precision—always verify with primary sources.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div className="mt-12 text-center text-[10px] uppercase tracking-[0.2em] opacity-40">
+                Chronos History Quest © {new Date().getFullYear()}
+            </div>
+        </footer>
 
       </div>
     </div>
