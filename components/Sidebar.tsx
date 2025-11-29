@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { UserState, CivType } from '../types';
 import { CIV_THEMES } from '../constants';
@@ -43,7 +42,7 @@ const Sidebar: React.FC<Props> = ({ user, onNavigate, onSwitchCiv, onOpenAuth, c
                 key={item.id}
                 onClick={() => onNavigate(item.id)}
                 className={`
-                  group flex md:flex-row flex-col items-center gap-1 md:gap-4 p-2 md:px-4 md:py-3 rounded-sm transition-all flex-1 md:flex-none justify-center md:justify-start
+                  group flex md:flex-row flex-col items-center gap-1 md:gap-4 p-2 md:px-4 md:py-3 rounded-xl transition-all flex-1 md:flex-none justify-center md:justify-start
                   ${isActive 
                     ? 'bg-stone-200 dark:bg-stone-800 text-stone-900 dark:text-white border-l-4 border-stone-500' 
                     : 'text-stone-500 hover:bg-stone-200/50 dark:hover:bg-stone-800/50 border-l-4 border-transparent'}
@@ -62,7 +61,7 @@ const Sidebar: React.FC<Props> = ({ user, onNavigate, onSwitchCiv, onOpenAuth, c
       <div className="hidden md:block p-4 border-t border-stone-200 dark:border-stone-800">
             <button 
                 onClick={() => setShowCivMenu(!showCivMenu)}
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded-sm border transition-all hover:brightness-105 ${theme.bgLight} ${theme.border} ${theme.text} border`}
+                className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl border transition-all hover:brightness-105 ${theme.bgLight} ${theme.border} ${theme.text} border`}
             >
                 <span className="text-lg">{theme.icon}</span>
                 <span className="font-bold uppercase tracking-wider text-xs flex-1 text-left">{user.currentCiv}</span>
@@ -70,7 +69,7 @@ const Sidebar: React.FC<Props> = ({ user, onNavigate, onSwitchCiv, onOpenAuth, c
             </button>
 
             {showCivMenu && (
-                <div className="absolute bottom-20 left-4 w-56 bg-white dark:bg-stone-800 border border-stone-300 dark:border-stone-700 rounded-sm shadow-xl z-50 overflow-hidden">
+                <div className="absolute bottom-20 left-4 w-56 bg-white dark:bg-stone-800 border border-stone-300 dark:border-stone-700 rounded-xl shadow-xl z-50 overflow-hidden">
                     {Object.keys(CIV_THEMES).map((civKey) => {
                         const c = civKey as CivType;
                         const t = CIV_THEMES[c];

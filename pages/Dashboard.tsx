@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Lesson, UserState, CivType } from '../types';
 import { CIV_THEMES } from '../constants';
@@ -30,7 +29,7 @@ const Dashboard: React.FC<Props> = ({ lessons, user, onStartLesson, onSwitchCiv 
         <div className="md:hidden sticky top-0 z-30 bg-stone-200/95 dark:bg-stone-900/95 backdrop-blur-md border-b border-stone-300 dark:border-stone-800 p-3 px-4 flex justify-between items-center shadow-md">
             <button 
                 onClick={onSwitchCiv} 
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-sm border border-stone-400 dark:border-stone-600 active:translate-y-px transition-all bg-stone-100 dark:bg-stone-800`}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border border-stone-400 dark:border-stone-600 active:translate-y-px transition-all bg-stone-100 dark:bg-stone-800`}
             >
                 <img src={theme.symbolUrl} className="w-6 h-6 object-contain" alt={user.currentCiv} referrerPolicy="no-referrer" />
                 <span className={`font-bold uppercase text-xs tracking-wider ${theme.text}`}>Timeline</span>
@@ -45,16 +44,16 @@ const Dashboard: React.FC<Props> = ({ lessons, user, onStartLesson, onSwitchCiv 
         
         <div className="max-w-2xl mx-auto pt-8 px-4">
             {units.map((unit) => (
-                <div key={unit.id} className="mb-16">
+                <div key={unit.id} className="mb-24">
                     {/* Dossier Style Header - Tactical/Documentary Look */}
                     <div className={`
-                        rounded-sm p-4 mb-8 flex justify-between items-center text-white shadow-lg relative overflow-hidden
+                        rounded-xl p-5 mb-12 flex justify-between items-center text-white shadow-xl relative overflow-hidden
                         ${theme.primary} border-l-4 border-l-stone-900 border-t border-t-white/10
                     `}>
                         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cardboard.png')] opacity-10 mix-blend-multiply"></div>
                         <div className="relative z-10">
                             <div className="flex items-center gap-2 mb-1 opacity-80">
-                                <span className="bg-black/30 px-2 py-0.5 rounded-sm text-[10px] font-mono font-bold uppercase tracking-widest border border-white/10">Sector {unit.id}</span>
+                                <span className="bg-black/30 px-2 py-0.5 rounded-md text-[10px] font-mono font-bold uppercase tracking-widest border border-white/10">Sector {unit.id}</span>
                             </div>
                             <h2 className="text-xl md:text-2xl font-bold tracking-tight font-serif uppercase">{unit.title}</h2>
                         </div>
@@ -62,7 +61,7 @@ const Dashboard: React.FC<Props> = ({ lessons, user, onStartLesson, onSwitchCiv 
                     </div>
 
                     {/* Path */}
-                    <div className="flex flex-col items-center gap-8 relative">
+                    <div className="flex flex-col items-center gap-20 relative">
                          {unit.lessons.map((lesson, idx) => {
                              const isLocked = lesson.locked;
                              const isCompleted = lesson.completed;
@@ -76,7 +75,7 @@ const Dashboard: React.FC<Props> = ({ lessons, user, onStartLesson, onSwitchCiv 
                                      
                                      {/* Tactical Popover */}
                                      {isActive && (
-                                         <div className={`absolute -top-16 left-1/2 -translate-x-1/2 bg-stone-800 text-white py-2 px-4 rounded-sm shadow-xl border border-stone-600 animate-bounce whitespace-nowrap z-20`}>
+                                         <div className={`absolute -top-20 left-1/2 -translate-x-1/2 bg-stone-800 text-white py-2 px-4 rounded-xl shadow-xl border border-stone-600 animate-bounce whitespace-nowrap z-20`}>
                                              <div className="flex flex-col items-center leading-tight">
                                                  <span className="text-[9px] uppercase tracking-widest text-amber-500 font-bold font-mono">Current Objective</span>
                                                  <span className="font-serif text-sm mt-1">{lesson.title}</span>
@@ -89,8 +88,8 @@ const Dashboard: React.FC<Props> = ({ lessons, user, onStartLesson, onSwitchCiv 
                                         onClick={() => !isLocked && onStartLesson(lesson.id)}
                                         disabled={isLocked}
                                         className={`
-                                            w-20 h-20 md:w-24 md:h-24 rounded-lg rotate-45 flex items-center justify-center transition-all duration-300 relative z-10
-                                            shadow-[0_4px_10px_rgba(0,0,0,0.4)] hover:scale-105 active:scale-95
+                                            w-20 h-20 md:w-24 md:h-24 rounded-2xl rotate-45 flex items-center justify-center transition-all duration-300 relative z-10
+                                            shadow-[0_8px_16px_rgba(0,0,0,0.3)] hover:scale-110 active:scale-95
                                             ${isCompleted 
                                                 ? 'bg-amber-600 border-2 border-amber-400 text-white' 
                                                 : isLocked 
@@ -106,7 +105,7 @@ const Dashboard: React.FC<Props> = ({ lessons, user, onStartLesson, onSwitchCiv 
                                      </button>
                                      
                                      {/* Label below button */}
-                                     <div className={`absolute top-full mt-4 left-1/2 -translate-x-1/2 w-40 text-center text-xs font-bold uppercase tracking-wider font-mono ${isLocked ? 'opacity-40' : 'opacity-100'}`}>
+                                     <div className={`absolute top-full mt-6 left-1/2 -translate-x-1/2 w-48 text-center text-xs font-bold uppercase tracking-wider font-mono ${isLocked ? 'opacity-40' : 'opacity-100'}`}>
                                          {lesson.topic || lesson.title}
                                      </div>
                                  </div>

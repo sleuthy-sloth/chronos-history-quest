@@ -171,10 +171,10 @@ const App: React.FC = () => {
                           Tactical lessons. Immersive narratives. <br/>A living timeline.
                       </p>
                       <div className="w-full max-w-sm space-y-4 pt-4">
-                          <button onClick={() => handleOpenAuth('signup')} className="w-full bg-amber-700 hover:bg-amber-600 text-white border-2 border-amber-900 shadow-lg py-4 rounded-sm font-bold text-sm uppercase tracking-widest transition-all">
+                          <button onClick={() => handleOpenAuth('signup')} className="w-full bg-amber-700 hover:bg-amber-600 text-white border-2 border-amber-900 shadow-lg py-4 rounded-lg font-bold text-sm uppercase tracking-widest transition-all">
                               Begin Campaign
                           </button>
-                          <button onClick={() => handleOpenAuth('login')} className="w-full bg-white hover:bg-stone-50 text-stone-800 border-2 border-stone-300 py-4 rounded-sm font-bold text-sm uppercase tracking-widest transition-all shadow-sm">
+                          <button onClick={() => handleOpenAuth('login')} className="w-full bg-white hover:bg-stone-50 text-stone-800 border-2 border-stone-300 py-4 rounded-lg font-bold text-sm uppercase tracking-widest transition-all shadow-sm">
                               Resume Operation
                           </button>
                           <button onClick={() => handleGuestEntry()} className="w-full text-stone-400 hover:text-stone-600 font-bold text-xs uppercase tracking-widest py-2 transition-colors">

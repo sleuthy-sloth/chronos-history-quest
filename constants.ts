@@ -39,7 +39,7 @@ export const CIV_MUSIC = {
   [CivType.PERSIA]: "https://cdn.pixabay.com/audio/2024/09/11/audio_4024847e30.mp3"
 };
 
-// Tactical Historian Aesthetics - Desaturated, rich tones, distinct borders
+// Tactical Historian Aesthetics - Balanced, rich tones, distinct borders
 export const CIV_THEMES = {
   [CivType.ROME]: {
     primary: 'bg-red-800', 
