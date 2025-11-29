@@ -5,10 +5,9 @@ import 'firebase/compat/firestore';
 import { UserState, CivType, LeagueMember, Avatar } from '../types';
 import { INITIAL_USER_STATE, LEAGUE_BOT_POOL, AVATARS } from '../constants';
 
-const apiKey = process.env.API_KEY;
-
+// Firebase configuration provided by user
 const firebaseConfig = {
-  apiKey: apiKey,
+  apiKey: "AIzaSyCB3L1-3fSJWCbH7HVZGPqEO8VfrWUKbHo",
   authDomain: "chronos-391c8.firebaseapp.com",
   projectId: "chronos-391c8",
   storageBucket: "chronos-391c8.firebasestorage.app",

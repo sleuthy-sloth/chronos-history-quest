@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Lesson, ActivityType } from '../types';
 import { CIV_THEMES, getImage } from '../constants';
@@ -21,23 +22,42 @@ const LessonView: React.FC<Props> = ({ lesson: initialLesson, onExit, onComplete
   const [shuffledSortingPool, setShuffledSortingPool] = useState<string[]>([]);
   const [sortedItems, setSortedItems] = useState<string[]>([]);
   const [showScholarNotes, setShowScholarNotes] = useState(false);
+  
+  // Loading State Visuals
+  const [loadingStep, setLoadingStep] = useState(0);
+  const loadingMessages = [
+      "Initializing Chronos Link...",
+      `Triangulating timeline: ${initialLesson.civ}...`,
+      `Accessing Archives: "${initialLesson.topic}"...`,
+      "Translating ancient texts...",
+      "Cross-referencing historical sources...",
+      "Reconstructing artifacts...",
+      "Finalizing simulation..."
+  ];
 
   const theme = CIV_THEMES[lesson.civ];
 
   // AI Generation Effect for Skeleton Lessons
   useEffect(() => {
     if (initialLesson.isSkeleton) {
+        // Start Loading Animation Cycle
+        const interval = setInterval(() => {
+            setLoadingStep(prev => (prev < loadingMessages.length - 1 ? prev + 1 : prev));
+        }, 1200); // Change text every 1.2s to make it feel active
+
         const fetchContent = async () => {
             const generated = await generateLessonContent(initialLesson);
             if (generated) {
                 setLesson(generated);
                 setIsLoading(false);
             } else {
-                alert("Failed to decrypt ancient texts. Please try again.");
+                alert("Connection lost. The archives are silent.");
                 onExit();
             }
         };
         fetchContent();
+
+        return () => clearInterval(interval);
     }
   }, [initialLesson]);
 
@@ -112,10 +132,43 @@ const LessonView: React.FC<Props> = ({ lesson: initialLesson, onExit, onComplete
 
   if (isLoading) {
       return (
-          <div className="h-screen bg-stone-900 flex flex-col items-center justify-center text-center p-8 font-serif">
-              <div className={`w-16 h-16 border-4 border-stone-700 border-t-amber-500 rounded-2xl animate-spin mb-6`}></div>
-              <h2 className="text-2xl font-bold text-stone-200 mb-2 uppercase tracking-widest">Decrypting Archives...</h2>
-              <p className="text-stone-500 font-mono text-sm">Accessing topic: "{lesson.topic}"</p>
+          <div className="h-screen bg-stone-950 flex flex-col items-center justify-center p-8 font-mono relative overflow-hidden">
+              {/* Background Matrix/Grid effect */}
+              <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/grid-me.png')] opacity-10"></div>
+              
+              <div className="z-10 w-full max-w-md">
+                  {/* Tactical Loader */}
+                  <div className="flex justify-between items-end mb-2">
+                      <span className={`text-xs font-bold uppercase tracking-widest ${theme.text}`}>Decrypting Archives</span>
+                      <span className="text-xs text-stone-500">{Math.min((loadingStep + 1) * 15, 99)}%</span>
+                  </div>
+                  
+                  {/* Progress Bar */}
+                  <div className="h-2 bg-stone-800 rounded-full overflow-hidden mb-8 border border-stone-700">
+                      <div 
+                        className={`h-full ${theme.primary} transition-all duration-300 ease-out`} 
+                        style={{ width: `${Math.min((loadingStep + 1) * 15, 99)}%` }}
+                      ></div>
+                  </div>
+
+                  {/* Terminal Log */}
+                  <div className="bg-black/50 border border-stone-800 rounded-lg p-4 font-mono text-xs md:text-sm h-32 flex flex-col justify-end shadow-inner backdrop-blur-sm">
+                      {loadingMessages.slice(0, loadingStep + 1).slice(-3).map((msg, idx) => (
+                          <div key={idx} className="mb-1 text-stone-400">
+                              <span className="text-amber-600 mr-2">➜</span>
+                              <span className={idx === Math.min(loadingStep, 2) ? "text-stone-200 animate-pulse" : ""}>{msg}</span>
+                          </div>
+                      ))}
+                      <div className="animate-bounce mt-1 text-amber-500">_</div>
+                  </div>
+
+                  <button 
+                    onClick={onExit}
+                    className="mt-8 w-full text-center text-stone-600 hover:text-stone-400 text-xs uppercase tracking-widest transition-colors"
+                  >
+                    Cancel Operation
+                  </button>
+              </div>
           </div>
       )
   }

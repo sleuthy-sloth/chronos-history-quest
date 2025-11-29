@@ -24,29 +24,24 @@ export const generateLessonContent = async (skeletonLesson: Lesson): Promise<Les
   const topic = skeletonLesson.topic;
   
   const prompt = `
-    You are a historian designing a lesson for a "Hardcore History" / "Fall of Civilizations" style learning app.
-    Topic: "${topic}" for the Civilization: "${civName}".
+    You are a historian designing a tactical lesson for "Chronos".
+    Topic: "${topic}" | Civ: "${civName}".
     
-    Generate a JSON object representing a lesson with EXACTLY 3 activities.
+    Generate JSON for 3 activities. KEEP IT CONCISE.
     
-    Activity 1: Type "READING". A dramatic, narrative paragraph (100-150 words) teaching the core concept using immersive storytelling.
-       - 'mascotGuidance': A short, witty or profound comment from the civ's leader (e.g. Augustus, Justinian).
-       - 'scholarNotes': A deep, nuanced historical footnote (60-100 words). Focus on historiography, conflicting sources, archaeological evidence, or the "grim reality" often skipped in textbooks. Tone: Intellectual, slightly dark, "Director's Cut" commentary.
-       - 'imageKeyword': Visual prompt for an AI image generator. 
-          * IF the topic is an object/artifact (sword, coin, statue): "${topic} artifact, isolated on white background, studio lighting, hyperdetailed, 8k".
-          * IF the topic is an event/place: "Cinematic wide shot of ${topic}, atmospheric lighting, photorealistic, 8k, movie still".
+    1. "READING": 80-100 words. Dramatic storytelling.
+       - 'mascotGuidance': 1 sentence quote.
+       - 'scholarNotes': 50 words. Historiographical nuance.
+       - 'imageKeyword': Visual prompt. IF object: "${topic} artifact, white background". IF event: "Cinematic ${topic}, 8k".
     
-    Activity 2: Type "QUIZ". Choose ONE of the following formats to ensure variety:
-       - Format A: Multiple Choice (4 options, 1 correct).
-       - Format B: True/False (Options: ["True", "False"]).
-       - Format C: Fill-in-the-Blank (The 'question' is a sentence with a _____. Options are word choices).
-       Ensure the question tests critical thinking or specific details from the reading.
+    2. "QUIZ": Test the reading.
+       - Multiple Choice OR True/False OR Fill-in-Blank.
     
-    Activity 3: Type "SORTING" or "MATCHING". 
-       - If SORTING: Provide 4 items in chronological or logical order.
-       - If MATCHING: Provide 3 pairs of terms and definitions.
+    3. "SORTING" OR "MATCHING".
+       - SORTING: 4 items chronological.
+       - MATCHING: 3 pairs.
     
-    The JSON structure must match the schema exactly.
+    Follow schema EXACTLY.
   `;
 
   try {

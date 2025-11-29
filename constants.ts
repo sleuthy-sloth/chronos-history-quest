@@ -253,7 +253,7 @@ const UNIT_STRUCTURE = {
 
 // Hardcoded "Hero" lessons (Unit 1, Lessons 1-3) to ensure great first impression
 const HARDCODED_LESSONS = [
-  // ROME UNIT 1
+  // ================= ROME UNIT 1 =================
   {
     id: 'rome-1-1',
     title: 'Brothers of Blood',
@@ -311,8 +311,108 @@ const HARDCODED_LESSONS = [
       }
     ]
   },
-  
-  // EGYPT UNIT 1
+  {
+    id: 'rome-1-2',
+    title: 'The Seven Kings',
+    description: 'From Priest to Tyrant',
+    civ: CivType.ROME,
+    unitId: 1,
+    unitTitle: "The Founding",
+    locked: true,
+    completed: false,
+    xpReward: 120,
+    mapCoordinates: { x: 45, y: 38 },
+    activities: [
+      {
+        id: 'r2-1',
+        type: ActivityType.READING,
+        question: 'The Priest King',
+        narrative: "After the warlord Romulus came **Numa Pompilius**, the Priest King. He did not wage war; he built the temples. He established the Vestal Virgins, the calendar, and the rituals that would keep the gods (Pax Deorum) on Rome's side.",
+        mascotGuidance: "A sword can conquer a city. Only laws can keep it.",
+        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Numa_Pompilius_and_the_Nymph_Egeria.jpg/800px-Numa_Pompilius_and_the_Nymph_Egeria.jpg",
+        imageCredit: "Numa Pompilius, Felice Giani"
+      },
+      {
+        id: 'r2-2',
+        type: ActivityType.MATCHING,
+        question: 'Match the King to his Role',
+        pairs: [
+          { term: 'Romulus', definition: 'The Founder' },
+          { term: 'Numa', definition: 'The Priest' },
+          { term: 'Tarquin', definition: 'The Tyrant' }
+        ]
+      },
+      {
+        id: 'r2-3',
+        type: ActivityType.READING,
+        question: 'The Tyrant',
+        narrative: "The monarchy ended with **Tarquin the Proud** (Tarquinius Superbus). He murdered his father-in-law to take the throne, terrorized the Senate, and treated the citizens like slaves to build his great sewer, the Cloaca Maxima.",
+        mascotGuidance: "Power without virtue is just tyranny.",
+        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/The_late_Roman_Kings.jpg/800px-The_late_Roman_Kings.jpg",
+        imageCredit: "Tarquin the Proud"
+      },
+      {
+        id: 'r2-4',
+        type: ActivityType.QUIZ,
+        question: "Why was Tarquin hated?",
+        options: ["He was too poor", "He was a foreign spy", "He acted like a Tyrant", "He lost a war"],
+        correctAnswer: "He acted like a Tyrant"
+      }
+    ]
+  },
+  {
+    id: 'rome-1-3',
+    title: 'Birth of Republic',
+    description: 'The Oath of Brutus',
+    civ: CivType.ROME,
+    unitId: 1,
+    unitTitle: "The Founding",
+    locked: true,
+    completed: false,
+    xpReward: 150,
+    mapCoordinates: { x: 42, y: 32 },
+    activities: [
+      {
+        id: 'r3-1',
+        type: ActivityType.READING,
+        question: 'The Spark',
+        narrative: "The final straw was the assault of the noblewoman Lucretia by the King's son. In her grief, she took her own life. **Lucius Junius Brutus** pulled the knife from her chest and swore a terrible oath: never again would Rome be ruled by a King.",
+        mascotGuidance: "With this blood, I swear freedom.",
+        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Gavin_Hamilton_-_The_Oath_of_Brutus.jpg/800px-Gavin_Hamilton_-_The_Oath_of_Brutus.jpg",
+        imageCredit: "The Oath of Brutus, Hamilton",
+        scholarNotes: "Brutus would later execute his own sons for plotting to bring the King back. This demonstrated 'Pietas' - duty to the state above family."
+      },
+      {
+        id: 'r3-2',
+        type: ActivityType.READING,
+        question: 'Res Publica',
+        narrative: "In 509 BC, they created a new system: the **Res Publica** (Public Affair). Instead of a King, two **Consuls** would rule for only one year, each with the power to Veto (Forbid) the other.",
+        mascotGuidance: "Two heads are better than one. Especially when they hate each other.",
+        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Maccari-Cicero.jpg/800px-Maccari-Cicero.jpg",
+        imageCredit: "The Senate"
+      },
+      {
+        id: 'r3-3',
+        type: ActivityType.QUIZ,
+        question: "How long did a Consul serve?",
+        options: ["For Life", "10 Years", "1 Year", "6 Months"],
+        correctAnswer: "1 Year"
+      },
+      {
+        id: 'r3-4',
+        type: ActivityType.DECISION,
+        question: 'The First Crisis',
+        narrative: "The King is gone, but the poor Plebeians are starving. They threaten to leave the city. As Consul, what do you do?",
+        decisionContext: "The First Secession of the Plebs (494 BC).",
+        decisionChoices: [
+          { text: "Let them leave", isCorrect: false, feedback: "Rome is defenseless. The neighbors conquer you." },
+          { text: "Create the Tribune", isCorrect: true, feedback: "You create the Tribune of the Plebs to protect their rights. Unity is restored." }
+        ]
+      }
+    ]
+  },
+
+  // ================= EGYPT UNIT 1 =================
   {
     id: 'egypt-1-1',
     title: 'Gift of the Nile',
@@ -343,8 +443,88 @@ const HARDCODED_LESSONS = [
       }
     ]
   },
+  {
+    id: 'egypt-1-2',
+    title: 'Narmer Unification',
+    description: 'The Two Lands become One',
+    civ: CivType.EGYPT,
+    unitId: 1,
+    unitTitle: "The Old Kingdom",
+    locked: true,
+    completed: false,
+    xpReward: 120,
+    mapCoordinates: { x: 50, y: 45 },
+    activities: [
+      {
+        id: 'e2-1',
+        type: ActivityType.READING,
+        question: 'Upper and Lower',
+        narrative: "Before the Pharaohs, there were two Egypts. Lower Egypt (The Delta in the North) and Upper Egypt (The Valley in the South). Around 3100 BC, King **Narmer** of the South marched North to conquer.",
+        mascotGuidance: "Two lands. One ruler. One destiny.",
+        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Egypt_Giza_Pyramids_Sphinx_and_Man_on_Camel_at_Sunset.jpg/800px-Egypt_Giza_Pyramids_Sphinx_and_Man_on_Camel_at_Sunset.jpg",
+        imageCredit: "Giza Plateau"
+      },
+      {
+        id: 'e2-2',
+        type: ActivityType.ARTIFACT_EXPLORATION,
+        question: 'The Narmer Palette',
+        narrative: "This stone palette is the first historical document in the world. It shows Narmer smiting his enemies.",
+        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/Narmer_Palette.jpg/640px-Narmer_Palette.jpg",
+        imageCredit: "Narmer Palette, Cairo Museum",
+        artifactHotspots: [
+            { id: 'h1', x: 55, y: 25, label: 'White Crown', description: 'The Bowling Pin shaped crown of Upper Egypt.' },
+            { id: 'h2', x: 40, y: 40, label: 'Smiting Pose', description: 'Narmer holds a mace, about to strike a captive. A classic pose used for 3000 years.' }
+        ]
+      },
+      {
+        id: 'e2-3',
+        type: ActivityType.QUIZ,
+        question: "What did the Double Crown symbolize?",
+        options: ["War with Nubia", "Union of Upper & Lower Egypt", "The Sun God Ra", "The Harvest"],
+        correctAnswer: "Union of Upper & Lower Egypt"
+      }
+    ]
+  },
+  {
+    id: 'egypt-1-3',
+    title: 'Imhotep & Djoser',
+    description: 'The Stairway to Heaven',
+    civ: CivType.EGYPT,
+    unitId: 1,
+    unitTitle: "The Old Kingdom",
+    locked: true,
+    completed: false,
+    xpReward: 150,
+    mapCoordinates: { x: 48, y: 25 },
+    activities: [
+      {
+        id: 'e3-1',
+        type: ActivityType.READING,
+        question: 'Stone upon Stone',
+        narrative: "Before pyramids, kings were buried in flat mud-brick mounds called 'Mastabas'. The genius architect **Imhotep** had an idea: stack them on top of each other. He built the **Step Pyramid** for Pharaoh Djoser, the first monumental stone building in history.",
+        mascotGuidance: "We built a staircase so the King could walk to the stars.",
+        customImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Saqqara_pyramid_ver_2.jpg/800px-Saqqara_pyramid_ver_2.jpg",
+        imageCredit: "Step Pyramid of Djoser"
+      },
+      {
+        id: 'e3-2',
+        type: ActivityType.SORTING,
+        question: 'Evolution of Tombs',
+        items: ['Pit Grave', 'Mastaba (Mud Bench)', 'Step Pyramid (Stone)', 'True Pyramid'],
+        correctOrder: ['Pit Grave', 'Mastaba (Mud Bench)', 'Step Pyramid (Stone)', 'True Pyramid']
+      },
+      {
+        id: 'e3-3',
+        type: ActivityType.QUIZ,
+        question: "Who was the architect of the first pyramid?",
+        options: ["Ramesses", "Imhotep", "Khufu", "Narmer"],
+        correctAnswer: "Imhotep",
+        scholarNotes: "Imhotep was a commoner who became a god of healing. He is one of the few non-royals to be deified in Ancient Egypt."
+      }
+    ]
+  },
 
-  // BYZANTIUM UNIT 1
+  // ================= BYZANTIUM UNIT 1 =================
   {
     id: 'byzantium-1-1',
     title: 'Crisis & Rebirth',
@@ -456,7 +636,7 @@ const HARDCODED_LESSONS = [
     ]
   },
 
-  // PERSIA UNIT 1
+  // ================= PERSIA UNIT 1 =================
   {
     id: 'persia-1-1',
     title: 'The Rising Storm',
