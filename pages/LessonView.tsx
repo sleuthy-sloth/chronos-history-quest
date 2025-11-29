@@ -15,12 +15,20 @@ const LessonView: React.FC<Props> = ({ lesson: initialLesson, onExit, onComplete
   const [lesson, setLesson] = useState<Lesson>(initialLesson);
   const [isLoading, setIsLoading] = useState(initialLesson.isSkeleton);
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+  
+  // Interaction States
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [feedbackState, setFeedbackState] = useState<'idle' | 'correct' | 'incorrect'>('idle');
   const [showBottomSheet, setShowBottomSheet] = useState(false);
+  
+  // Game Specific States
   const [shuffledMatchingGrid, setShuffledMatchingGrid] = useState<any[]>([]);
+  const [matchedItems, setMatchedItems] = useState<string[]>([]); // IDs of matched cards
+  const [selectedMatchCard, setSelectedMatchCard] = useState<string | null>(null); // ID of currently selected card
+  
   const [shuffledSortingPool, setShuffledSortingPool] = useState<string[]>([]);
   const [sortedItems, setSortedItems] = useState<string[]>([]);
+  
   const [showScholarNotes, setShowScholarNotes] = useState(false);
   
   // Loading State Visuals
@@ -40,10 +48,9 @@ const LessonView: React.FC<Props> = ({ lesson: initialLesson, onExit, onComplete
   // AI Generation Effect for Skeleton Lessons
   useEffect(() => {
     if (initialLesson.isSkeleton) {
-        // Start Loading Animation Cycle
         const interval = setInterval(() => {
             setLoadingStep(prev => (prev < loadingMessages.length - 1 ? prev + 1 : prev));
-        }, 1200); // Change text every 1.2s to make it feel active
+        }, 1200);
 
         const fetchContent = async () => {
             const generated = await generateLessonContent(initialLesson);
@@ -64,24 +71,27 @@ const LessonView: React.FC<Props> = ({ lesson: initialLesson, onExit, onComplete
   const activity = lesson.activities[currentSlideIndex];
   const progress = ((currentSlideIndex) / (lesson.activities.length || 1)) * 100;
 
+  // Reset state on slide change
   useEffect(() => {
     if (isLoading || !activity) return;
     setSelectedOption(null);
     setFeedbackState('idle');
     setShowBottomSheet(false);
     setShowScholarNotes(false);
-    setShuffledMatchingGrid([]);
-    setShuffledSortingPool([]);
     setSortedItems([]);
+    setMatchedItems([]);
+    setSelectedMatchCard(null);
 
+    // Initialize Matching Game
     if (activity.type === ActivityType.MATCHING && activity.pairs) {
-        const grid = activity.pairs.flatMap(p => [
-            { id: p.term, text: p.term, type: 'term' },
-            { id: p.definition, text: p.definition, type: 'def' }
+        const grid = activity.pairs.flatMap((p, idx) => [
+            { id: `term-${idx}`, text: p.term, type: 'term', matchId: idx },
+            { id: `def-${idx}`, text: p.definition, type: 'def', matchId: idx }
         ]).sort(() => Math.random() - 0.5);
         setShuffledMatchingGrid(grid);
     }
 
+    // Initialize Sorting Game
     if (activity.type === ActivityType.SORTING && activity.items) {
         const pool = [...activity.items].sort(() => Math.random() - 0.5);
         setShuffledSortingPool(pool);
@@ -98,18 +108,65 @@ const LessonView: React.FC<Props> = ({ lesson: initialLesson, onExit, onComplete
     new Audio(urls[type]).play().catch(()=>{});
   };
 
+  // --- Handlers ---
+
+  const handleMatchCardClick = (cardId: string, matchId: number) => {
+      if (matchedItems.includes(cardId)) return;
+      if (selectedMatchCard === cardId) {
+          setSelectedMatchCard(null); // Deselect
+          return;
+      }
+
+      playSfx('pop');
+
+      if (selectedMatchCard) {
+          // Check match
+          const prevCard = shuffledMatchingGrid.find(c => c.id === selectedMatchCard);
+          if (prevCard && prevCard.matchId === matchId) {
+              // Match found
+              setMatchedItems(prev => [...prev, cardId, selectedMatchCard]);
+              setSelectedMatchCard(null);
+              playSfx('correct');
+          } else {
+              // Mismatch
+              playSfx('wrong');
+              setSelectedMatchCard(null);
+              // Optional: Add shake animation logic here if needed
+          }
+      } else {
+          // First selection
+          setSelectedMatchCard(cardId);
+      }
+  };
+
   const handleCheck = () => {
       let isCorrect = false;
       if (!activity) return;
 
       switch(activity.type) {
-          case ActivityType.READING: isCorrect = true; break;
-          case ActivityType.QUIZ: isCorrect = selectedOption === activity.correctAnswer; break;
+          case ActivityType.READING: 
+            isCorrect = true; 
+            break;
+          case ActivityType.QUIZ: 
+            isCorrect = selectedOption === activity.correctAnswer; 
+            break;
           case ActivityType.SORTING: 
              if (activity.correctOrder && sortedItems.length === activity.correctOrder.length) 
                 isCorrect = sortedItems.every((val, index) => val === activity.correctOrder![index]);
              break;
-          default: isCorrect = true;
+          case ActivityType.MATCHING:
+             // Auto-check handled by game logic, this button just confirms completion
+             isCorrect = matchedItems.length === shuffledMatchingGrid.length;
+             break;
+          case ActivityType.MAP_CONQUEST:
+             // Usually map sets selectedOption='found' when target clicked
+             isCorrect = selectedOption === 'found';
+             break;
+          case ActivityType.ARTIFACT_EXPLORATION:
+             isCorrect = true;
+             break;
+          default: 
+            isCorrect = true;
       }
 
       if (isCorrect) {
@@ -133,41 +190,22 @@ const LessonView: React.FC<Props> = ({ lesson: initialLesson, onExit, onComplete
   if (isLoading) {
       return (
           <div className="h-screen bg-stone-950 flex flex-col items-center justify-center p-8 font-mono relative overflow-hidden">
-              {/* Background Matrix/Grid effect */}
               <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/grid-me.png')] opacity-10"></div>
-              
               <div className="z-10 w-full max-w-md">
-                  {/* Tactical Loader */}
                   <div className="flex justify-between items-end mb-2">
                       <span className={`text-xs font-bold uppercase tracking-widest ${theme.text}`}>Decrypting Archives</span>
                       <span className="text-xs text-stone-500">{Math.min((loadingStep + 1) * 15, 99)}%</span>
                   </div>
-                  
-                  {/* Progress Bar */}
                   <div className="h-2 bg-stone-800 rounded-full overflow-hidden mb-8 border border-stone-700">
-                      <div 
-                        className={`h-full ${theme.primary} transition-all duration-300 ease-out`} 
-                        style={{ width: `${Math.min((loadingStep + 1) * 15, 99)}%` }}
-                      ></div>
+                      <div className={`h-full ${theme.primary} transition-all duration-300 ease-out`} style={{ width: `${Math.min((loadingStep + 1) * 15, 99)}%` }}></div>
                   </div>
-
-                  {/* Terminal Log */}
                   <div className="bg-black/50 border border-stone-800 rounded-lg p-4 font-mono text-xs md:text-sm h-32 flex flex-col justify-end shadow-inner backdrop-blur-sm">
                       {loadingMessages.slice(0, loadingStep + 1).slice(-3).map((msg, idx) => (
-                          <div key={idx} className="mb-1 text-stone-400">
-                              <span className="text-amber-600 mr-2">➜</span>
-                              <span className={idx === Math.min(loadingStep, 2) ? "text-stone-200 animate-pulse" : ""}>{msg}</span>
-                          </div>
+                          <div key={idx} className="mb-1 text-stone-400"><span className="text-amber-600 mr-2">➜</span>{msg}</div>
                       ))}
                       <div className="animate-bounce mt-1 text-amber-500">_</div>
                   </div>
-
-                  <button 
-                    onClick={onExit}
-                    className="mt-8 w-full text-center text-stone-600 hover:text-stone-400 text-xs uppercase tracking-widest transition-colors"
-                  >
-                    Cancel Operation
-                  </button>
+                  <button onClick={onExit} className="mt-8 w-full text-center text-stone-600 hover:text-stone-400 text-xs uppercase tracking-widest transition-colors">Cancel Operation</button>
               </div>
           </div>
       )
@@ -184,35 +222,24 @@ const LessonView: React.FC<Props> = ({ lesson: initialLesson, onExit, onComplete
             <div className="flex-1 h-3 bg-stone-300 dark:bg-stone-800 rounded-full overflow-hidden">
                 <div className={`h-full ${theme.primary} transition-all duration-500`} style={{ width: `${progress}%` }} />
             </div>
-            
-            {/* Scholar Notes Toggle */}
             {activity.scholarNotes && (
-                <button 
-                    onClick={() => setShowScholarNotes(!showScholarNotes)}
-                    className={`w-10 h-10 flex items-center justify-center rounded-xl border-2 transition-colors ${showScholarNotes ? 'bg-amber-100 text-amber-700 border-amber-300' : 'text-stone-400 border-stone-300 hover:bg-stone-100'}`}
-                >
-                    📖
-                </button>
+                <button onClick={() => setShowScholarNotes(!showScholarNotes)} className={`w-10 h-10 flex items-center justify-center rounded-xl border-2 transition-colors ${showScholarNotes ? 'bg-amber-100 text-amber-700 border-amber-300' : 'text-stone-400 border-stone-300 hover:bg-stone-100'}`}>📖</button>
             )}
         </div>
 
-        {/* Scrollable Content */}
+        {/* Content Area */}
         <div className="flex-1 overflow-y-auto p-6 pb-40 max-w-2xl mx-auto w-full relative">
             
-            {/* Scholar Context Card (Overlay) */}
             {showScholarNotes && (
                 <div className="mb-6 bg-[#fdfbf7] dark:bg-stone-800 p-6 rounded-2xl border border-l-4 border-stone-300 dark:border-stone-700 border-l-amber-600 shadow-md animate-fade-in-up">
                     <h4 className="font-bold text-amber-600 uppercase tracking-widest text-[10px] font-mono mb-2">Field Note</h4>
-                    <p className="text-stone-800 dark:text-stone-300 leading-relaxed text-sm font-serif">
-                        {activity.scholarNotes}
-                    </p>
+                    <p className="text-stone-800 dark:text-stone-300 leading-relaxed text-sm font-serif">{activity.scholarNotes}</p>
                 </div>
             )}
 
-            <h1 className="text-xl md:text-2xl font-bold text-stone-900 dark:text-stone-100 mb-8 leading-tight">
-                {activity.question}
-            </h1>
+            <h1 className="text-xl md:text-2xl font-bold text-stone-900 dark:text-stone-100 mb-8 leading-tight">{activity.question}</h1>
 
+            {/* --- READING RENDERER --- */}
             {activity.type === ActivityType.READING && (
                 <div className="space-y-6">
                     <div className="rounded-2xl overflow-hidden border-4 border-white dark:border-stone-800 shadow-xl">
@@ -224,16 +251,10 @@ const LessonView: React.FC<Props> = ({ lesson: initialLesson, onExit, onComplete
                             onError={(e) => { e.currentTarget.style.display = 'none'; }}
                         />
                          {activity.imageCredit && (
-                            <div className="bg-stone-900 text-stone-400 text-[9px] px-3 py-1 text-right uppercase tracking-wider">
-                                {activity.imageCredit}
-                            </div>
+                            <div className="bg-stone-900 text-stone-400 text-[9px] px-3 py-1 text-right uppercase tracking-wider">{activity.imageCredit}</div>
                         )}
                     </div>
-                    
-                    <div className="prose dark:prose-invert prose-lg max-w-none text-stone-700 dark:text-stone-300 leading-relaxed font-serif">
-                        {activity.narrative}
-                    </div>
-
+                    <div className="prose dark:prose-invert prose-lg max-w-none text-stone-700 dark:text-stone-300 leading-relaxed font-serif">{activity.narrative}</div>
                      <div className="flex items-start gap-4 p-5 bg-stone-200 dark:bg-stone-900 rounded-2xl border-l-4 border-l-stone-400 dark:border-l-stone-600">
                          <img src={theme.mascotImage} className="w-14 h-14 rounded-xl object-cover grayscale contrast-125 shadow-md" referrerPolicy="no-referrer" />
                          <div>
@@ -244,6 +265,7 @@ const LessonView: React.FC<Props> = ({ lesson: initialLesson, onExit, onComplete
                 </div>
             )}
 
+            {/* --- QUIZ RENDERER --- */}
             {activity.type === ActivityType.QUIZ && (
                 <div className="grid gap-4">
                     {activity.options?.map((opt) => (
@@ -251,12 +273,7 @@ const LessonView: React.FC<Props> = ({ lesson: initialLesson, onExit, onComplete
                             key={opt}
                             onClick={() => { setSelectedOption(opt); playSfx('pop'); }}
                             disabled={showBottomSheet}
-                            className={`
-                                p-5 rounded-xl border-2 text-left font-bold text-lg transition-all
-                                ${selectedOption === opt 
-                                    ? `${theme.bgLight} ${theme.border} ${theme.text} shadow-[inset_0_2px_6px_rgba(0,0,0,0.1)] translate-y-0.5` 
-                                    : 'bg-white dark:bg-stone-900 border-stone-300 dark:border-stone-700 hover:border-stone-400 hover:bg-stone-50 shadow-sm hover:-translate-y-0.5'}
-                            `}
+                            className={`p-5 rounded-xl border-2 text-left font-bold text-lg transition-all ${selectedOption === opt ? `${theme.bgLight} ${theme.border} ${theme.text} shadow-[inset_0_2px_6px_rgba(0,0,0,0.1)] translate-y-0.5` : 'bg-white dark:bg-stone-900 border-stone-300 dark:border-stone-700 hover:border-stone-400 hover:bg-stone-50 shadow-sm hover:-translate-y-0.5'}`}
                         >
                             {opt}
                         </button>
@@ -264,6 +281,7 @@ const LessonView: React.FC<Props> = ({ lesson: initialLesson, onExit, onComplete
                 </div>
             )}
             
+            {/* --- SORTING RENDERER --- */}
             {(activity.type === ActivityType.SORTING) && (
                  <div className="space-y-4">
                      <div className="bg-stone-100 dark:bg-stone-900 p-4 rounded-2xl border-2 border-stone-300 dark:border-stone-700 border-dashed min-h-[120px] flex flex-col gap-2">
@@ -292,12 +310,109 @@ const LessonView: React.FC<Props> = ({ lesson: initialLesson, onExit, onComplete
                      </div>
                  </div>
             )}
+
+            {/* --- MATCHING RENDERER --- */}
+            {activity.type === ActivityType.MATCHING && (
+                <div className="grid grid-cols-2 gap-4">
+                    {shuffledMatchingGrid.map((card) => {
+                        const isMatched = matchedItems.includes(card.id);
+                        const isSelected = selectedMatchCard === card.id;
+                        return (
+                            <button
+                                key={card.id}
+                                disabled={isMatched || showBottomSheet}
+                                onClick={() => handleMatchCardClick(card.id, card.matchId)}
+                                className={`
+                                    p-4 rounded-xl border-2 font-bold text-sm min-h-[100px] flex items-center justify-center text-center transition-all duration-300
+                                    ${isMatched 
+                                        ? 'opacity-0 scale-0' // Matched items disappear
+                                        : isSelected
+                                            ? `${theme.bgLight} ${theme.border} ${theme.text} scale-105 shadow-md`
+                                            : 'bg-white dark:bg-stone-900 border-stone-300 dark:border-stone-700 hover:border-stone-400 shadow-sm'
+                                    }
+                                `}
+                            >
+                                {card.text}
+                            </button>
+                        )
+                    })}
+                </div>
+            )}
+
+            {/* --- MAP CONQUEST RENDERER --- */}
+            {activity.type === ActivityType.MAP_CONQUEST && (
+                 <div className="relative rounded-xl overflow-hidden border-4 border-stone-300 dark:border-stone-700 shadow-2xl">
+                     <img 
+                        src={activity.customImage} 
+                        className="w-full h-auto" 
+                        referrerPolicy="no-referrer"
+                     />
+                     {activity.mapTarget && (
+                         <button 
+                            onClick={() => { setSelectedOption('found'); playSfx('correct'); setShowBottomSheet(true); setFeedbackState('correct'); }}
+                            className="absolute w-12 h-12 rounded-full border-2 border-white bg-transparent animate-pulse hover:bg-white/30 transition-colors"
+                            style={{ top: `${activity.mapTarget.y}%`, left: `${activity.mapTarget.x}%` }}
+                         >
+                            <span className="sr-only">{activity.mapTarget.label}</span>
+                         </button>
+                     )}
+                     <div className="absolute top-2 left-2 bg-black/60 text-white px-3 py-1 rounded text-xs font-bold uppercase backdrop-blur-sm border border-white/10">
+                         Target: {activity.mapTarget?.label}
+                     </div>
+                 </div>
+            )}
+
+            {/* --- DECISION RENDERER --- */}
+            {activity.type === ActivityType.DECISION && (
+                <div className="space-y-4">
+                     <p className="text-lg italic text-stone-600 dark:text-stone-400 border-l-4 border-stone-300 pl-4">
+                         Context: {activity.decisionContext}
+                     </p>
+                     <div className="grid gap-4 mt-6">
+                         {activity.decisionChoices?.map((choice, idx) => (
+                             <button 
+                                key={idx}
+                                onClick={() => { 
+                                    if(choice.isCorrect) { setFeedbackState('correct'); playSfx('correct'); }
+                                    else { setFeedbackState('incorrect'); playSfx('wrong'); }
+                                    setShowBottomSheet(true);
+                                }}
+                                className="p-6 bg-white dark:bg-stone-900 border-2 border-stone-300 dark:border-stone-700 rounded-xl hover:border-amber-500 hover:shadow-lg transition-all text-left group"
+                             >
+                                 <h4 className="font-bold text-lg mb-1 group-hover:text-amber-600">{choice.text}</h4>
+                             </button>
+                         ))}
+                     </div>
+                </div>
+            )}
+
+            {/* --- ARTIFACT EXPLORATION RENDERER --- */}
+            {activity.type === ActivityType.ARTIFACT_EXPLORATION && (
+                <div className="space-y-6">
+                    <p className="text-stone-600 dark:text-stone-400 italic">Tap the highlighted areas to examine the artifact.</p>
+                    <div className="relative rounded-2xl overflow-hidden border-4 border-stone-300 dark:border-stone-700 shadow-2xl">
+                        <img src={activity.customImage} className="w-full h-auto" referrerPolicy="no-referrer" />
+                        {activity.artifactHotspots?.map(spot => (
+                            <div key={spot.id} className="absolute group" style={{ top: `${spot.y}%`, left: `${spot.x}%` }}>
+                                <button className="w-8 h-8 -ml-4 -mt-4 bg-amber-500/50 rounded-full animate-ping absolute"></button>
+                                <button className="relative w-8 h-8 -ml-4 -mt-4 bg-white/20 border-2 border-white rounded-full flex items-center justify-center text-white font-bold shadow-lg backdrop-blur-sm hover:scale-110 transition-transform">
+                                    ?
+                                </button>
+                                {/* Tooltip */}
+                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 bg-stone-900/90 text-white text-xs p-3 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none backdrop-blur-md border border-white/10 z-20">
+                                    <strong className="block text-amber-400 uppercase mb-1">{spot.label}</strong>
+                                    {spot.description}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
         </div>
 
         {/* Footer */}
-        <div className={`fixed bottom-0 left-0 w-full p-4 md:p-6 border-t border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 z-50 transition-colors duration-300
-            ${showBottomSheet ? (feedbackState === 'correct' ? 'bg-emerald-50 dark:bg-emerald-950/30' : 'bg-red-50 dark:bg-red-950/30') : ''}
-        `}>
+        <div className={`fixed bottom-0 left-0 w-full p-4 md:p-6 border-t border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 z-50 transition-colors duration-300 ${showBottomSheet ? (feedbackState === 'correct' ? 'bg-emerald-50 dark:bg-emerald-950/30' : 'bg-red-50 dark:bg-red-950/30') : ''}`}>
             <div className="max-w-2xl mx-auto">
                 {showBottomSheet ? (
                     <div className="flex justify-between items-center animate-fade-in-up">
@@ -306,6 +421,11 @@ const LessonView: React.FC<Props> = ({ lesson: initialLesson, onExit, onComplete
                                 {feedbackState === 'correct' ? 'Mission Accomplished' : 'Correction Needed'}
                             </h3>
                             {feedbackState === 'incorrect' && <p className="text-red-700 text-sm mt-1">{activity.correctAnswer || "Try again."}</p>}
+                            {activity.type === ActivityType.DECISION && (
+                                <p className="text-sm mt-1 font-medium opacity-90 max-w-md">
+                                    {feedbackState === 'correct' ? activity.decisionChoices?.find(c => c.isCorrect)?.feedback : activity.decisionChoices?.find(c => !c.isCorrect)?.feedback}
+                                </p>
+                            )}
                         </div>
                         <button onClick={handleNext} className={`px-8 py-4 rounded-xl font-bold uppercase tracking-widest text-white shadow-lg ${feedbackState === 'correct' ? 'bg-emerald-700 hover:bg-emerald-600' : 'bg-red-700 hover:bg-red-600'} hover:scale-105 transition-transform`}>
                             Continue
@@ -314,12 +434,17 @@ const LessonView: React.FC<Props> = ({ lesson: initialLesson, onExit, onComplete
                 ) : (
                     <button 
                         onClick={handleCheck}
-                        disabled={activity.type !== ActivityType.READING && !selectedOption && sortedItems.length === 0}
+                        disabled={
+                            (activity.type === ActivityType.QUIZ && !selectedOption) ||
+                            (activity.type === ActivityType.SORTING && sortedItems.length === 0) ||
+                            (activity.type === ActivityType.MATCHING && matchedItems.length !== shuffledMatchingGrid.length) ||
+                            (activity.type === ActivityType.MAP_CONQUEST && selectedOption !== 'found')
+                        }
                         className={`w-full py-4 rounded-xl font-bold uppercase tracking-[0.2em] text-white shadow-lg transform active:scale-[0.98] transition-all disabled:opacity-50 disabled:grayscale
                             ${theme.primary} border-b-4 border-black/20 active:border-b-0
                         `}
                     >
-                        {activity.type === ActivityType.READING ? 'Acknowledged' : 'Confirm'}
+                        {activity.type === ActivityType.READING || activity.type === ActivityType.ARTIFACT_EXPLORATION ? 'Acknowledged' : 'Confirm'}
                     </button>
                 )}
             </div>
